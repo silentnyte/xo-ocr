@@ -109,7 +109,8 @@ img_melee.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB0AAAAlCAYAAAC+u
 
 var dataURL, filename;
 $("html").pasteImageReader(function (results) {
-  (filename = results.filename), (dataURL = results.dataURL);
+  filename = results.filename;
+  dataURL = results.dataURL;
   $data.text(dataURL);
   $size.val(results.file.size);
   $type.val(results.file.type);
@@ -160,7 +161,7 @@ var cb2 = 118;
 var cb3 = 158;
 var cb4 = 273;
 var cb5 = 348;
-var r = 2; // cropping bar thickness
+var cbt = 2; // cropping bar thickness
 
 // cropping bars
 var cbs = {
@@ -169,7 +170,7 @@ var cbs = {
     x: 0,
     y: cb1,
     w: cw,
-    h: r,
+    h: cbt,
     bool: false,
   },
   cb1a: {
@@ -177,7 +178,7 @@ var cbs = {
     x: 0,
     y: cb1a,
     w: cw,
-    h: r,
+    h: cbt,
     bool: false,
   },
   cb2: {
@@ -185,7 +186,7 @@ var cbs = {
     x: 0,
     y: cb2,
     w: cw,
-    h: r,
+    h: cbt,
     bool: false,
   },
   cb3: {
@@ -193,7 +194,7 @@ var cbs = {
     x: 0,
     y: cb3,
     w: cw,
-    h: r,
+    h: cbt,
     bool: false,
   },
   cb4: {
@@ -201,7 +202,7 @@ var cbs = {
     x: 0,
     y: cb4,
     w: cw,
-    h: r,
+    h: cbt,
     bool: false,
   },
   cb5: {
@@ -209,7 +210,7 @@ var cbs = {
     x: 0,
     y: cb5,
     w: cw,
-    h: r,
+    h: cbt,
     bool: false,
   },
 };
@@ -573,8 +574,7 @@ function addField(parent, name, type, label) {
 }
 
 function getColor(img) {
-  var pixels = [];
-  var dict = {};
+  var colors = {};
   var rgb = { r: 0, g: 0, b: 0, h: "" };
   var count = 0;
   for (var x = 0; x < img.width; x++) {
@@ -585,8 +585,7 @@ function getColor(img) {
       rgb.g += img.data[i + 1];
       rgb.b += img.data[i + 2];
       count++;
-      pixels[i] = hex;
-      dict[hex] = (dict[hex] || 0) + 1;
+      colors[hex] = (colors[hex] || 0) + 1;
     }
   }
   rgb.r = Math.floor(rgb.r / count);
@@ -608,12 +607,12 @@ function getRarity(rgb) {
     { r: 167, g: 105, b: 42, h: "#a7692a", rarity: "Legendary" },
     { r: 163, g: 65, b: 0, h: "#a34100", rarity: "Relic" },
   ];
-  for (r in rarities) {
+  for (cbt in rarities) {
     //console.log(rarities[r]);
-    if (rgb.r > rarities[r].r - 20 && rgb.r < rarities[r].r + 20) {
-      if (rgb.g > rarities[r].g - 20 && rgb.g < rarities[r].g + 20) {
-        if (rgb.b > rarities[r].b - 20 && rgb.b < rarities[r].b + 20) {
-          return rarities[r].rarity;
+    if (rgb.r > rarities[cbt].r - 20 && rgb.r < rarities[cbt].r + 20) {
+      if (rgb.g > rarities[cbt].g - 20 && rgb.g < rarities[cbt].g + 20) {
+        if (rgb.b > rarities[cbt].b - 20 && rgb.b < rarities[cbt].b + 20) {
+          return rarities[cbt].rarity;
         }
       }
     }
@@ -622,17 +621,15 @@ function getRarity(rgb) {
 }
 
 function processBar(img) {
-  var pixels = [];
-  var dict = {};
+  var colors = {};
   for (var x = 0; x < img.width; x++) {
     for (var y = 0; y < img.height; y++) {
       var i = y * 4 * img.width + x * 4;
       var hex = rgbToHex(img.data[i], img.data[i + 1], img.data[i + 2]);
-      pixels[i] = hex;
-      dict[hex] = (dict[hex] || 0) + 1;
+      colors[hex] = (colors[hex] || 0) + 1;
     }
   }
-  var val = dict["#000000"] / (dict["#000000"] + dict["#b3b3b3"]);
+  var val = colors["#000000"] / (colors["#000000"] + colors["#b3b3b3"]);
   val = ~~(val * 100);
   val = val / 10;
   //console.log(dict);
@@ -998,7 +995,6 @@ function detectFeatures(img) {
   let point = new cv.Point(maxPoint.x + templ.cols, maxPoint.y + templ.rows);
   cv.rectangle(src, maxPoint, point, color, 2, cv.LINE_8, 0);
   var cnv = document.createElement("canvas");
-  var ctx = cnv.getContext("2d");
   var container = document.getElementById("cnv_stats1");
   container.appendChild(cnv);
   cv.imshow(cnv, src);
