@@ -18,3 +18,10 @@ After the form is filled out any of the fields can be edited by hand to correct 
 
 When you are happy with the result click the "Submit" button and the data will be stored away in a database.
 
+Future Improvement:
+- Upgrade Tesseract.js version
+- Image pre-proccesing
+- Progress indication
+- Error logging
+- Batch processing
+- Add item feature detection
