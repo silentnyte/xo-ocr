@@ -1,44 +1,41 @@
-var proportion; // ratio of original image to canvas size
+var proportion = 1; // ratio of canvas size / original image
 var img_org = new Image(); // original image
-var cbEnabled = false;
-var cb1aEnbld = false;
+var title_color;
+var SSID = "1gdJ6sYWlI_b3C5v1b9uhLEsDBENlW7oQR02WgWIxSVc";
+var master_sheet = "1587708941";
 
-var cb_info = document.getElementById("cb_info");
-var ocr_info = document.getElementById("ocr_info");
-var catElement = document.getElementById("category");
+// const worker = Tesseract.createWorker({
+//   logger: m => console.log(m)
+// });
+// Tesseract.setLogging(true);
+
+var ocr_info = document.getElementById("log");
 var cnv0 = document.getElementById("cnv_org");
 var ctx0 = cnv0.getContext("2d");
-var cnv1 = document.getElementById("cnv1");
-var cnv2 = document.getElementById("cnv2");
-var cnv3 = document.getElementById("cnv3");
-var cnv4 = document.getElementById("cnv4");
-var cnv4a = document.getElementById("cnv4a");
-var cnv5 = document.getElementById("cnv5");
-var cnv5a = document.getElementById("cnv5a");
-var cnv6 = document.getElementById("cnv6");
+var cnv_ocr = document.getElementById("cnv_ocr");
+var ctx_ocr = cnv_ocr.getContext("2d");
 
-var cnv_orj = document.createElement("canvas");
-var ctx_org = cnv_orj.getContext("2d");
+var cnv_org = document.createElement("canvas");
+var ctx_org = cnv_org.getContext("2d");
 var cnv_inv = document.createElement("canvas");
 var ctx_inv = cnv_inv.getContext("2d");
 var cnv_filter = document.createElement("canvas");
 var ctx_filter = cnv_filter.getContext("2d");
-var cnv_bw = document.createElement("canvas");
-var ctx_bw = cnv_bw.getContext("2d");
+var cnv_title = document.createElement("canvas");
+var ctx_title = cnv_title.getContext("2d");
 
 var iw, ih;
-var cw = (cnv0.width = 310); //594
-var ch = (cnv0.height = 500);
-cnv1.width = cnv2.width = cnv3.width = cnv4.width = cnv4a.width = cnv5.width = cnv5a.width = cnv6.width = 140;
-cnv1.height = cnv2.height = cnv3.height = cnv4.height = cnv4a.height = cnv5.height = cnv5a.height = cnv6.height = 40;
+var cw = (cnv0.width = cnv_ocr.width = ~~(512 * proportion));
+var ch = (cnv0.height = cnv_ocr.height = ~~(640 * proportion));
 ctx0.fillStyle = "#000000";
 ctx0.font = "16px Courier";
 ctx0.textAlign = "center";
 ctx0.textBaseline = "middle";
-ctx0.fillText("PASTE ITEM CLIP HERE", cw / 2, ch / 2);
+ctx0.fillText("PASTE ITEM CLIP HERE", ~~(cw / 2), ~~(ch / 2));
 
 var img_melee = new Image();
-img_melee.src = 'data:image/png;base64,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';
+img_melee.src =
+  "data:image/png;base64,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";
 
 // Created by STRd6
 // MIT License
@@ -120,8 +117,6 @@ $("html").pasteImageReader(function (results) {
   $width.val(iw);
   $height.val(ih);
 
-  //console.log(`img w="${iw}", h="${ih}"`);
-
   return (
     $(".active")
       //.css({backgroundImage: "url(" + dataURL + ")"})
@@ -148,189 +143,84 @@ $(function () {
   });
 });
 
-var isDragging1 = false;
-
-var mousePos1 = {
-  x: 0,
-  y: 0,
-};
-
-var cb1 = 59;
-var cb1a = 59;
-var cb2 = 118;
-var cb3 = 158;
-var cb4 = 273;
-var cb5 = 348;
-var cbt = 2; // cropping bar thickness
-
-// cropping bars
-var cbs = {
-  cb1: {
-    color: "yellow",
-    x: 0,
-    y: cb1,
-    w: cw,
-    h: cbt,
-    bool: false,
-  },
-  cb1a: {
-    color: "yellow",
-    x: 0,
-    y: cb1a,
-    w: cw,
-    h: cbt,
-    bool: false,
-  },
-  cb2: {
-    color: "yellow",
-    x: 0,
-    y: cb2,
-    w: cw,
-    h: cbt,
-    bool: false,
-  },
-  cb3: {
-    color: "yellow",
-    x: 0,
-    y: cb3,
-    w: cw,
-    h: cbt,
-    bool: false,
-  },
-  cb4: {
-    color: "yellow",
-    x: 0,
-    y: cb4,
-    w: cw,
-    h: cbt,
-    bool: false,
-  },
-  cb5: {
-    color: "yellow",
-    x: 0,
-    y: cb5,
-    w: cw,
-    h: cbt,
-    bool: false,
-  },
-};
-
 var cimgs; // cropped images
 function update_cimgs() {
   cimgs = {
-    cimg1: {
+    title: {
       sx: ~~(iw - iw * 0.83),
       sy: 0,
       sw: ~~(iw * 0.83),
-      sh: ~~(cbs.cb1.y * proportion),
-      dx: 0,
+      sh: ~~(iw * 0.18),
+      dx: ~~((iw - iw * 0.83) * proportion),
       dy: 0,
-      dw: ~~((iw * 0.83) / proportion),
-      dh: cbs.cb1.y,
+      dw: ~~(iw * 0.83 * proportion),
+      dh: ~~(iw * 0.18 * proportion),
     },
-    cimg2: {
+    body: {
       sx: 0,
-      sy: ~~(cbs.cb1a.y * proportion),
+      sy: ~~(iw * 0.2),
       sw: iw,
-      sh: ~~((cbs.cb2.y - cbs.cb1a.y) * proportion),
+      sh: ~~(ih - iw * 0.2),
       dx: 0,
-      dy: 0,
-      dw: ~~(iw / proportion),
-      dh: cbs.cb2.y - cbs.cb1a.y,
-    },
-    cimg3: {
-      sx: ~~(iw * 0.01),
-      sy: ~~(cbs.cb2.y * proportion),
-      sw: ~~(iw * 0.26),
-      sh: ~~((cbs.cb3.y - cbs.cb2.y) * proportion),
-      dx: 0,
-      dy: 0,
-      dw: ~~((iw * 0.26) / proportion),
-      dh: cbs.cb3.y - cbs.cb2.y,
-    },
-    cimg4: {
-      sx: 0,
-      sy: ~~(cbs.cb3.y * proportion),
-      sw: ~~(iw * 0.45),
-      sh: ~~((cbs.cb4.y - cbs.cb3.y) * proportion),
-      dx: 0,
-      dy: 0,
-      dw: ~~((iw * 0.45) / proportion),
-      dh: cbs.cb4.y - cbs.cb3.y,
-      cnv: "cnv4a",
-      parent: "stats1",
+      dy: ~~(iw * 0.2 * proportion),
+      dw: ~~(iw * proportion),
+      dh: ~~((ih - iw * 0.2) * proportion),
       sx2: ~~(iw * 0.47),
       sw2: ~~(iw * 0.49),
       sh2: 8,
     },
-    cimg5: {
+    desc: {
       sx: 0,
-      sy: ~~(cbs.cb4.y * proportion),
+      sy: ~~(iw * 0.2),
+      sw: iw,
+      sh: 0,
+    },
+    ps: {
+      sx: 0,
+      sy: 0,
+      sw: iw,
+      sh: 0,
+    },
+    stats: {
+      sx: 0,
+      sy: 0,
       sw: ~~(iw * 0.45),
-      sh: ~~((cbs.cb5.y - cbs.cb4.y) * proportion),
-      dx: 0,
-      dy: 0,
-      dw: ~~((iw * 0.45) / proportion),
-      dh: cbs.cb5.y - cbs.cb4.y,
-      cnv: "cnv5a",
-      parent: "stats2",
-      sx2: ~~(iw * 0.52),
-      sw2: ~~(iw * 0.3),
-      sh2: 16,
+      sh: 0,
+      sx2: ~~(iw * 0.47),
+      sw2: ~~(iw * 0.49),
+      sh2: 8,
     },
-    cimg5a: {
-      sx: ~~(iw * 0.52),
-      sy: ~~(cbs.cb4.y * proportion),
-      sw: ~~(iw * 0.48),
-      sh: ~~((cbs.cb5.y - cbs.cb4.y) * proportion),
-      dx: 0,
-      dy: 0,
-      dw: ~~((iw * 0.45) / proportion),
-      dh: cbs.cb5.y - cbs.cb4.y,
-    },
-    cimg6: {
+    perks: {
       sx: ~~(iw * 0.1),
-      sy: ~~(cbs.cb5.y * proportion),
+      sy: 0,
       sw: ~~(iw * 0.9),
-      sh: ~~((ch - cbs.cb5.y) * proportion),
-      dx: 0,
-      dy: 0,
-      dw: ~~((iw * 0.91) / proportion),
-      dh: ch - cbs.cb5.y,
+      sh: 0,
     },
   };
 }
 
-function drawCroppingBars() {
-  for (var k in cbs) {
-    ctx0.fillStyle = cbs[k].color;
-    ctx0.beginPath();
-    ctx0.fillRect(cbs[k].x, cbs[k].y, cbs[k].w, cbs[k].h);
-  }
-  update_cimgs();
-  cb_info.textContent =
-    "cb1:" +
-    cbs.cb1.y +
-    ", cb1a:" +
-    cbs.cb1a.y +
-    ", cb2:" +
-    cbs.cb2.y +
-    ", cb3:" +
-    cbs.cb3.y +
-    ", cb4:" +
-    cbs.cb4.y +
-    ", cb5:" +
-    cbs.cb5.y +
-    "";
-}
+var spellchk = [
+  ["puwer", "power"],
+  ["catlin", "cabin"],
+  ["amrno", "ammo"],
+  ["bverheating", "overheating"],
+  ["Nut", "Not"],
+  ["nut", "not"],
+  ["Dues", "Does"],
+  ["sturage", "storage"],
+  ["Nun’", "Not "],
+];
 
-function drawImgToCanvas(img, cnv, cimg) {
+function drawOCR(scr, dst, cimg) {
+  cimg.dx = ~~(cimg.sx * proportion);
+  cimg.dy = ~~(cimg.sy * proportion);
+  cimg.dw = ~~(cimg.sw * proportion);
+  cimg.dh = ~~(cimg.sh * proportion);
+
+  var cnv = document.getElementById(dst);
   var ctx = cnv.getContext("2d");
-  ctx.clearRect(0, 0, cw, ch);
-  cnv.width = cimg.dw;
-  cnv.height = cimg.dh;
   ctx.drawImage(
-    img,
+    scr,
     cimg.sx,
     cimg.sy,
     cimg.sw,
@@ -340,237 +230,358 @@ function drawImgToCanvas(img, cnv, cimg) {
     cimg.dw,
     cimg.dh
   );
-
-  // let cv_src = cv.imread(img);
-  // let cv_dst = new cv.Mat();
-  // let crop = new cv.Rect(cimg.sx, cimg.sy, cimg.sw, cimg.sh);
-  // let cv_scaled = new cv.Mat();
-  // let dsize = new cv.Size(cimg.dw, cimg.dh);
-  // cv_dst = cv_src.roi(crop);
-  // if (filter) {
-  //   cv_dst = filterImg(cv_dst, cv_dst);
-  // }
-  // cv.resize(cv_dst, cv_scaled, dsize, 0, 0, cv.INTER_AREA);
-  // cv.imshow(cnv, cv_scaled);
-  // cv_src.delete();
-  // cv_scaled.delete();
-  // return cv_dst;
 }
 
-function drawCroppedImages() {
-  drawImgToCanvas(cnv_filter, cnv1, cimgs.cimg1);
-  drawImgToCanvas(cnv_inv, cnv2, cimgs.cimg2);
-  drawImgToCanvas(cnv_bw, cnv3, cimgs.cimg3);
-  drawImgToCanvas(cnv_inv, cnv4, cimgs.cimg4);
-  drawImgToCanvas(cnv_inv, cnv5, cimgs.cimg5);
-  //drawImgToCanvas(cnv_inv, cnv5a, cimgs.cimg5a);
-  drawImgToCanvas(cnv_inv, cnv6, cimgs.cimg6);
-}
-
-function ocrImages() {
-  cbEnabled = false;
-
-  var rgb = getColor(ctx_org.getImageData(10, 10, 10, 10));
-  var ratiry = getRarity(rgb);
-  //console.log(ratiry);
-  document.getElementById("rarity").value = ratiry;
-
-  recognizeImage(
-    ctx_filter.getImageData(
-      cimgs.cimg1.sx,
-      cimgs.cimg1.sy,
-      cimgs.cimg1.sw,
-      cimgs.cimg1.sh
-    )
-  ).then((data) => processOCR(data, cimgs.cimg1, ["name", "type"]));
-
-  recognizeImage(
-    ctx_inv.getImageData(
-      cimgs.cimg2.sx,
-      cimgs.cimg2.sy,
-      cimgs.cimg2.sw,
-      cimgs.cimg2.sh
-    )
-  ).then((data) => processOCR(data, cimgs.cimg2, ["desc"]));
-
-  let rgxPS = [
-    ["O", "0"],
-    ["D", "0"],
-    [/\s/g, ""],
-  ];
-  recognizeImage(
-    ctx_bw.getImageData(
-      cimgs.cimg3.sx,
-      cimgs.cimg3.sy,
-      cimgs.cimg3.sw,
-      cimgs.cimg3.sh
-    )
-  ).then((data) => processOCR(data, cimgs.cimg3, ["ps"], rgxPS));
-
-  if (cimgs.cimg4.sh > 10) {
-    recognizeImage(
+async function ocrImage() {
+  await recognizeFile(cnv_title).then((data) => processTitleOCR(data));
+  await recognizeFile(cnv_filter).then((data) => locatePS(data, cimgs.ps));
+  if (cimgs.ps.sy > 0) {
+    cimgs.desc.sh = cimgs.ps.sy - cimgs.desc.sy;
+    await recognizeFile(
       ctx_inv.getImageData(
-        cimgs.cimg4.sx,
-        cimgs.cimg4.sy,
-        cimgs.cimg4.sw,
-        cimgs.cimg4.sh
+        cimgs.desc.sx,
+        cimgs.desc.sy,
+        cimgs.desc.sw,
+        cimgs.desc.sh
       )
-    ).then((data) => processOCR(data, cimgs.cimg4, []));
-  }
+    ).then((data) => processDescOCR(data, cimgs.desc));
 
-  recognizeImage(
-    ctx_inv.getImageData(
-      cimgs.cimg5.sx,
-      cimgs.cimg5.sy,
-      cimgs.cimg5.sw,
-      cimgs.cimg5.sh
-    )
-  ).then((data) => processOCR(data, cimgs.cimg5, []));
-
-  // recognizeImage(
-  //   ctx_inv.getImageData(
-  //     cimgs.cimg5a.sx,
-  //     cimgs.cimg5a.sy,
-  //     cimgs.cimg5a.sw,
-  //     cimgs.cimg5a.sh
-  //   )
-  // ).then((data) => processOCR(data, cimgs.cimg5a, ["val2a", "val2b", "val2c"], rgxStat));
-
-  if (cimgs.cimg6.sh > 10) {
-    recognizeImage(
+    cimgs.stats.sy = cimgs.ps.sy + cimgs.ps.sh;
+    cimgs.stats.sh = ih - cimgs.stats.sy;
+    await recognizeFile(
       ctx_inv.getImageData(
-        cimgs.cimg6.sx,
-        cimgs.cimg6.sy,
-        cimgs.cimg6.sw,
-        cimgs.cimg6.sh
+        cimgs.stats.sx,
+        cimgs.stats.sy,
+        cimgs.stats.sw,
+        cimgs.stats.sh
       )
-    ).then((data) => processOCR(data, cimgs.cimg6, ["perks"]));
+    ).then((data) => processStatsOCR(data, cimgs.stats));
   } else {
-    document.getElementById("perks").value = "";
+    //TODO: Add error proccessing if PS not found
+    alert('"POWER SCORE" not found in image!');
   }
-  cbEnabled = true;
 }
 
-function processOCR(data, cimg, txtb, rgx) {
-  rgx = rgx || [];
-  var i = 0;
-  var txt = "";
-  var elm;
-  var pImg2 = false;
+function processTitleOCR(data) {
+  var iname = "";
+  var itype = "";
+  for (let l in data.lines) {
+    var txt = data.lines[l].text.trim();
+    if (txt.length > 0) {
+      if (iname == "") {
+        iname = txt;
+      } else {
+        itype = txt;
+      }
+    }
+  }
+  document.getElementById("name").value = iname;
+  document.getElementById("type").value = itype;
+
+  var query = encodeURIComponent("SELECT * WHERE A='" + iname + "'");
+  var url =
+    "https://docs.google.com/spreadsheets/d/" +
+    SSID +
+    "/gviz/tq?gid=" +
+    master_sheet +
+    "&tq=" +
+    query;
+  jsonp(url, function (json_data) {
+    // console.log(url);
+    // console.log(json_data);
+    if (typeof json_data.table.rows[0] === "undefined") {
+      // TODO: Add error proccessing
+      console.log('"' + iname + '" was not found in database.');
+    } else {
+      // var rarity = json_data.table.rows[0].c[1].v;
+      var faction = "Shop";
+      if (json_data.table.rows[0].c[2] != null) {
+        faction = json_data.table.rows[0].c[2].v;
+      }
+      var category = json_data.table.rows[0].c[3].v;
+      // var type = json_data.table.rows[0].c[4].v;
+      document.getElementById("category").value = category;
+      document.getElementById("faction").value = faction;
+    }
+  });
+  appendOCR_results(data.text);
+}
+
+function locatePS(data, cimg) {
+  for (let l in data.lines) {
+    var txt = data.lines[l].text.trim();
+    if (txt.length > 0) {
+      var match = /power score/i.exec(txt);
+      if (match != null) {
+        cimg.sy = data.lines[l].bbox.y0 - 5;
+        cimg.sh = data.lines[l].bbox.y1 - data.lines[l].bbox.y0 + 5;
+        var ps = txt.substr(0, match.index).trim();
+        document.getElementById("ps").value = ps.replace(/[^-\d]/g, "");
+        break;
+      }
+    }
+  }
+
+  drawOCR(cnv_filter, "cnv_ocr", cimg);
+}
+
+function processDescOCR(data, cimg) {
+  var desc = "";
+  for (let l in data.lines) {
+    var txt = data.lines[l].text.trim();
+    if (txt.length > 0) {
+      for (let j = 0; j < spellchk.length; j++) {
+        txt = txt.replace(spellchk[j][0], spellchk[j][1]);
+      }
+      if (txt.match("Increases vehicle durability")) {
+        addField(
+          "form_stats",
+          "increases_durability",
+          "number",
+          "Increases vehicle durability"
+        );
+        var txtsplit = txt.split(" ");
+        var val = txtsplit[txtsplit.length - 1].replace(/[^-\d]/g, "");
+        document.getElementById("increases_durability").value = val;
+      } else if (txt.match("Increases reputation gain")) {
+        addField(
+          "form_stats",
+          "increases_reputation",
+          "number",
+          "Increases reputation gain"
+        );
+        var txtsplit = txt.split(" ");
+        var val = txtsplit[txtsplit.length - 1].replace(/[^-\d]/g, "");
+        document.getElementById("increases_reputation").value = val;
+      } else if (
+        !txt.match("Not tradable") &&
+        !txt.match("Does not take up storage space") &&
+        !txt.match("Not salvageable") &&
+        !txt.match("Not for fusion")
+      ) {
+        if (desc != "") {
+          desc = desc + "\n";
+        }
+        desc = desc + txt;
+      }
+    }
+  }
+  document.getElementById("desc").textContent = desc;
+
+  appendOCR_results(data.text);
+  drawOCR(cnv_inv, "cnv_ocr", cimg);
+}
+
+function processStatsOCR(data, cimg) {
+  var statsDone = false;
+  var perksLine = 0;
   try {
-    if (cimg.parent && cimg.parent !== "null" && cimg.parent !== "undefined") {
-      if (cimg.parent != "") {
-        pImg2 = true;
-      }
-    }
     for (let l in data.lines) {
-      txt = data.lines[l].text.trim();
+      var txt = data.lines[l].text.trim();
       if (txt.length > 0) {
-        for (let j = 0; j < rgx.length; j++) {
-          txt = txt.replace(rgx[j][0], rgx[j][1]);
+        var txtlc = txt.toLowerCase();
+        for (let j = 0; j < spellchk.length; j++) {
+          txtlc = txtlc.replace(spellchk[j][0], spellchk[j][1]);
         }
-        //console.log(elm.type + ' ' + txt);
-        if (pImg2) {
-          processImg2(data.lines[l], cimg);
-        } else {
-          //console.log('1 - ' + txtb[i]);
-          elm = document.getElementById(txtb[i]);
-          if (elm.type == "textarea") {
-            if (elm.textContent.length > 0) {
-              elm.textContent = elm.textContent + "\n";
+        var name = txtlc.split(" ")[0];
+        var label = "";
+        var type = "";
+        switch (name) {
+          case "damage":
+            label = "Damage";
+            type = "bar";
+            break;
+          case "fire":
+            if (txtlc.startsWith("fire rate")) {
+              name = "fire_rate";
+              label = "Fire rate";
+              type = "bar";
             }
-            elm.textContent = elm.textContent + txt;
-          } else {
-            elm.textContent = txt;
-            elm.value = txt;
-          }
-          if (i < txtb.length - 1) {
-            i++;
-            elm = document.getElementById(txtb[i]);
-          }
+            break;
+          case "range":
+            label = "Range";
+            type = "bar";
+            break;
+          case "accuracy":
+            label = "Accuracy";
+            type = "bar";
+            break;
+          case "time":
+            if (txtlc.startsWith("time to overheating")) {
+              name = "time_to_overheating";
+              label = "Time to overheating";
+              type = "bar";
+            }
+            break;
+          case "max":
+            if (txtlc.startsWith("max ammo")) {
+              name = "max_ammo";
+              label = "Max ammo";
+              type = "text";
+            }
+            break;
+          case "blast":
+            if (txtlc.startsWith("blast power")) {
+              name = "blast_power";
+              label = "Blast power";
+              type = "bar";
+            }
+            break;
+          case "adds":
+            if (txtlc.startsWith("adds energy")) {
+              name = "adds_energy";
+              label = "Adds energy";
+              type = "text";
+            }
+            break;
+          case "tonnage":
+            label = "Tonnage";
+            type = "text";
+            break;
+          case "mass":
+            if (txtlc.startsWith("mass limit")) {
+              name = "mass_limit";
+              label = "Mass limit";
+              type = "text";
+            } else {
+              statsDone = true;
+              label = "Mass";
+              type = "text";
+              perksLine = data.lines[l];
+            }
+            break;
+          case "max.":
+            if (txtlc.startsWith("max. cabin speed")) {
+              name = "max_cabin_speed";
+              label = "Max. cabin speed";
+              type = "text";
+            }
+            break;
+          case "power":
+            label = "Power";
+            type = "text";
+            if (document.getElementById("type").value.match(/cabin/i)) {
+              type = "bar";
+            }
+            break;
+          case "fuel":
+            if (txtlc.startsWith("fuel reserves")) {
+              name = "fuel_reserves";
+              label = "Fuel reserves";
+              type = "text";
+            }
+            break;
+          case "durability":
+            label = "Durability";
+            type = "text";
+            cimg.sx2 = ~~(iw * 0.52);
+            cimg.sw2 = ~~(iw * 0.3);
+            cimg.sh2 = 16;
+            break;
+          case "energy":
+            if (txtlc.startsWith("energy drain")) {
+              name = "energy_drain";
+              label = "Energy drain";
+              type = "text";
+            }
+            break;
+          default:
+        }
+        if (label != "" && type != "") {
+          processStatsVal(data.lines[l], cimg, name, label, type);
+        } else {
+          console.log("Stat not found:" + name + " - " + data.lines[l].text);
+          //TODO: Add error proccessing if Stat not found
         }
       }
+      if (statsDone) {
+        break;
+      }
     }
+    if (cimg.sh - perksLine.bbox.y1 > 50) {
+      cimgs.perks.sy = perksLine.bbox.y1 + cimg.sy + ~~(iw * 0.05);
+      cimgs.perks.sh = ih - cimgs.perks.sy;
+      processPerks(perksLine, cimgs.perks, "perks", "", "");
+      cimg.sh = cimgs.perks.sy - cimg.sy;
+    }
+    appendOCR_results(data.text);
+    drawOCR(cnv_inv, "cnv_ocr", cimg);
   } catch (err) {
     console.error(err.stack);
+    // TODO: Add error proccessing
   }
+
 }
 
-function processImg2(line, cimg) {
+function processStatsVal(line, cimg, name, label, type) {
   var bb = line.bbox;
   var x = cimg.sx2;
-  var y = cimg.sy + bb.y0 - cimg.sh2;
+  var y = bb.y0 - cimg.sh2 + cimg.sy;
   var w = cimg.sw2;
   var h = bb.y1 - bb.y0 + cimg.sh2 * 2;
-  var dy = ~~((y - cimg.sy) / proportion);
-  var dw = ~~(w / proportion);
-  var dh = ~~(h / proportion);
+  var dx = ~~(x * proportion);
+  var dy = ~~(y * proportion);
+  var dw = ~~(w * proportion);
+  var dh = ~~(h * proportion);
   var syc = ~~(y + h / 2); //source center of bar
-  //console.log(cimg.sy+' '+bb.y0+' '+bb.y1);
-  var cnv = document.getElementById(cimg.cnv);
+  var cnv = document.getElementById("cnv_ocr");
   var ctx = cnv.getContext("2d");
-  if (dw > cnv.width || cimg.dh > cnv.height) {
-    cnv.width = dw;
-    cnv.height = cimg.dh;
-  }
-  ctx.drawImage(cnv_inv, x, y, w, h, 0, dy, dw, dh);
-  //console.log(cimg.parent);
 
-  var label = line.text.trim();
-  if (label == "Puwer") {
-    label = "Power";
-  }
-  if (label == "Max. catlin speed") {
-    label = "Max. cabin speed";
-  }
-  
-  var name = label.toLowerCase().replace(/ /g, "_");
-  if (
-    name == "damage" ||
-    name == "fire_rate" ||
-    name == "range" ||
-    name == "accuracy" ||
-    name == "time_to_overheating" ||
-    (name == "power" && catElement.value == "Cabins")
-  ) {
-    addField(cimg.parent, name, "number", label);
+  if (type == "bar") {
+    addField("form_stats", name, "number", label);
     var val = processBar(ctx_inv.getImageData(x, syc, w, 1));
     document.getElementById(name).value = val;
-  } else if (name == "features") {
-    addField(cimg.parent, name, "text", label);
+    ctx.drawImage(cnv_inv, x, y, w, h, dx, dy, dw, dh);
+  } else if (type == "features") {
+    addField("form_stats", name, "text", label);
     //var cnvf = document.createElement("canvas");
     //var ctxf = cnvf.getContext("2d");
     //ctxf.drawImage(cnv_inv, x, y, w, h, 0, dy, dw, dh);
     //detectFeatures(cnvf);
   } else {
-    addField(cimg.parent, name, "number", label);
-    recognizeImage(ctx_inv.getImageData(x, y, w, h)).then(
+    addField("form_stats", name, "number", label);
+    recognizeFile(ctx_filter.getImageData(x, y, w, h)).then(
       (data) =>
-        (document.getElementById(name).value = data.text
-          .replace(/\s/g, "")
-          .match(/-?\d+/g))
+        (document.getElementById(name).value = data.text.replace(/[^-\d]/g, "")) //.match(/-?\d+/g))
+      //TODO: Add error proccessing if data.text is not a number
     );
-    //).then((data) => processOCR(data, null, [name], rgx));
-    //txt = txt.match(/-?\d+/g);
-    //txt = txt.replace(',','');
-    //document.getElementById(name).value = txt;
+    ctx.drawImage(cnv_filter, x, y, w, h, dx, dy, dw, dh);
   }
+}
+
+function processPerks(line, cimg, name, label, type) {
+  addField("form_perks", name, "textarea", label);
+  recognizeFile(ctx_inv.getImageData(cimg.sx, cimg.sy, cimg.sw, cimg.sh)).then(
+    (data) => (document.getElementById(name).value = data.text.trim())
+  );
+
+  drawOCR(cnv_inv, "cnv_ocr", cimg);
 }
 
 function addField(parent, name, type, label) {
   var container = document.getElementById(parent);
-  var ig = container.appendChild(document.createElement("div"));
-  ig.className = "input-group mb-3";
-  var igp = ig.appendChild(document.createElement("div"));
-  igp.className = "input-group-prepend";
-  var span = igp.appendChild(document.createElement("span"));
-  span.className = "input-group-text";
-  span.textContent = label;
-  var input = ig.appendChild(document.createElement("input"));
-  input.id = name;
-  input.name = name;
-  input.type = type;
-  input.className = "form-control";
+  if (type == "text" || type == "number") {
+    var ig = container.appendChild(document.createElement("div"));
+    ig.className = "input-group mb-3";
+    var igp = ig.appendChild(document.createElement("div"));
+    igp.className = "input-group-prepend";
+    var span = igp.appendChild(document.createElement("span"));
+    span.className = "input-group-text";
+    span.textContent = label;
+    var input = ig.appendChild(document.createElement("input"));
+    input.id = name;
+    input.name = name;
+    input.type = type;
+    input.step = "0.1";
+    input.className = "form-control";
+  } else {
+    var input = container.appendChild(document.createElement("textarea"));
+    input.id = name;
+    input.name = name;
+    input.cols = "50";
+    input.rows = "4";
+    input.className = "form-control form-control-sm";
+  }
 }
 
 function getColor(img) {
@@ -592,8 +603,6 @@ function getColor(img) {
   rgb.g = Math.floor(rgb.g / count);
   rgb.b = Math.floor(rgb.b / count);
   rgb.h = rgbToHex(rgb.r, rgb.g, rgb.b);
-  //console.log(dict);
-  //console.log(rgb);
   return rgb;
 }
 
@@ -607,8 +616,7 @@ function getRarity(rgb) {
     { r: 167, g: 105, b: 42, h: "#a7692a", rarity: "Legendary" },
     { r: 163, g: 65, b: 0, h: "#a34100", rarity: "Relic" },
   ];
-  for (cbt in rarities) {
-    //console.log(rarities[r]);
+  for (var cbt in rarities) {
     if (rgb.r > rarities[cbt].r - 20 && rgb.r < rarities[cbt].r + 20) {
       if (rgb.g > rarities[cbt].g - 20 && rgb.g < rarities[cbt].g + 20) {
         if (rgb.b > rarities[cbt].b - 20 && rgb.b < rarities[cbt].b + 20) {
@@ -632,7 +640,6 @@ function processBar(img) {
   var val = colors["#000000"] / (colors["#000000"] + colors["#b3b3b3"]);
   val = ~~(val * 100);
   val = val / 10;
-  //console.log(dict);
   return val;
 }
 
@@ -641,70 +648,94 @@ function rgbToHex(r, g, b) {
 }
 
 img_org.onload = function () {
-  clearForm();
   iw = img_org.width;
   ih = img_org.height;
-  proportion = iw / cw;
-  //console.log(`img w="${iw}", h="${ih}", p="${proportion}"`);
-  //console.log(`cnv w="${cnv_org.width}", h="${cnv_org.height}"`);
-  ch = ~~(ih / proportion);
+  //proportion = cw / iw;
+  cw = ~~(iw * proportion);
+  ch = ~~(ih * proportion);
+
+  update_cimgs();
+  initForm();
+
+  cnv0.width = cw;
   cnv0.height = ch;
   ctx0.clearRect(0, 0, cw, ch);
   cnv0.style.backgroundImage = "url(" + img_org.src + ")";
-  cnv_orj.width = iw;
-  cnv_orj.height = ih;
+
+  cnv_ocr.width = cw;
+  cnv_ocr.height = ch;
+
+  cnv_org.width = iw;
+  cnv_org.height = ih;
   ctx_org.drawImage(img_org, 0, 0, iw, ih);
+  title_color = getColor(ctx_org.getImageData(10, 10, 10, 10));
+  var title_gs = ~~((title_color.r + title_color.g + title_color.b) / 3);
+  document.getElementById("rarity").value = getRarity(title_color);
+
   cnv_inv.width = iw;
   cnv_inv.height = ih;
   ctx_inv.filter = "invert(1)";
   ctx_inv.drawImage(img_org, 0, 0, iw, ih);
 
-  let cv_src = cv.imread(cnv_inv);
-  let cv_filter = new cv.Mat();
-  //let crop = new cv.Rect(cimgs.cimg1.sx, cimgs.cimg1.sy, cimgs.cimg1.sw, cimgs.cimg1.sh);
-  cv_filter = filterImg(cv_src, cv_filter);
-  cv.imshow(cnv_filter, cv_filter);
-  cv_filter.delete();
+  cnv_filter.width = iw;
+  cnv_filter.height = ih;
+  cv.imshow(cnv_filter, filterImg(cnv_inv, 255 - title_gs + 20));
 
-  let cv_bw = new cv.Mat();
-  cv.cvtColor(cv_src, cv_bw, cv.COLOR_RGBA2GRAY);
-  cv.threshold(cv_bw, cv_bw, 200, 255, cv.THRESH_BINARY);
-  cv.imshow(cnv_bw, cv_bw);
-  cv_bw.delete();
-  cv_src.delete();
+  cnv_title.width = cimgs.title.sw;
+  cnv_title.height = cimgs.title.sh;
+  ctx_title.filter = "invert(1)";
+  ctx_title.drawImage(
+    img_org,
+    cimgs.title.sx,
+    cimgs.title.sy,
+    cimgs.title.sw,
+    cimgs.title.sh,
+    0,
+    0,
+    cimgs.title.sw,
+    cimgs.title.sh
+  );
+  cv.imshow(cnv_title, filterImg(cnv_title, title_gs));
+  ctx_ocr.drawImage(
+    cnv_title,
+    0,
+    0,
+    cimgs.title.sw,
+    cimgs.title.sh,
+    cimgs.title.dx,
+    cimgs.title.dy,
+    cimgs.title.dw,
+    cimgs.title.dh
+  );
 
-  cbs.cb5.y = Math.min(cbs.cb5.y, ch);
-
-  drawCroppingBars();
-  drawCroppedImages();
-  ocrImages();
-  cbEnabled = true;
-
-  //let cv_src = cv.imread(cnv_inv);
-  //let cv_dst = new cv.Mat();
-  //let crop = new cv.Rect(cimgs.cimg1.sx, cimgs.cimg1.sy, cimgs.cimg1.sw, cimgs.cimg1.sh);
-  //cv_dst = filterImg(cv_src.roi(crop), cv_dst);
-  //cv.imshow('cnv1', cv_dst);
-  //cv_src.delete();
-  //cv_dst.delete();
+  ocrImage();
 };
 
-function filterImg(src, dst) {
-  let blur = new cv.Mat();
+function filterImg(img, thresh) {
+  let src = cv.imread(img);
   let gs = new cv.Mat();
   let bw = new cv.Mat();
-  //let ksize = new cv.Size(3, 3);
+  let blur = new cv.Mat();
+  let dst = new cv.Mat();
+  let M = cv.Mat.ones(2, 2, cv.CV_8U);
+  let anchor = new cv.Point(-1, -1);
+
   cv.cvtColor(src, gs, cv.COLOR_RGBA2GRAY);
-  //cv.GaussianBlur(gs, blur, ksize, 0);
-  cv.medianBlur(gs, blur, 3);
-  cv.threshold(blur, dst, 74, 255, cv.THRESH_BINARY);
-  //cv.threshold(mat, dst, 128, 255, cv.THRESH_BINARY);
-  //does not work: dst = cv.adaptiveThreshold(cv.medianBlur(mat, 3), 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 31, 2);
-  //cv.adaptiveThreshold(mat, dst, 200, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 3, 2);
-  //does not work: dst = cv.bitwise_not(src);
-  blur.delete();
+  cv.erode(
+    gs,
+    blur,
+    M,
+    anchor,
+    1,
+    cv.BORDER_CONSTANT,
+    cv.morphologyDefaultBorderValue()
+  );
+  cv.threshold(blur, dst, thresh, 255, cv.THRESH_BINARY);
+
+  src.delete();
   gs.delete();
   bw.delete();
+  blur.delete();
   return dst;
 }
 
@@ -715,7 +746,7 @@ function recognizeImage(image) {
   ocr_info.classList.remove("error");
   ocr_info.classList.add("processing");
 
-  return Tesseract.recognize(image)
+  return Tesseract.recognize(image, { lang: "eng" })
     .progress((progress) => {
       // console.log('progress', progress);
       ocr_info.innerHTML = `Processing...<br>Status: ${
@@ -726,7 +757,7 @@ function recognizeImage(image) {
       //console.log('result', result.text);
 
       ocr_info.classList.remove("processing");
-      //ocr_result.textContent = result.text;
+      //ocr_results.textContent = result.text;
     })
     .catch((err) => {
       myError(err, "caught error");
@@ -738,242 +769,95 @@ function recognizeImage(image) {
     });
 }
 
-function cursorStyleC1() {
-  cnv0.style.cursor = "default";
-  if (cbEnabled) {
-    for (var k in cbs) {
-      //o[k].bool = false;
-      ctx0.beginPath();
-      ctx0.rect(cbs[k].x - 5, cbs[k].y - 5, cbs[k].w + 20, cbs[k].h + 20);
-      if (ctx0.isPointInPath(mousePos1.x, mousePos1.y)) {
-        if (
-          k == "cb1" ||
-          k == "cb1a" ||
-          k == "cb2" ||
-          k == "cb3" ||
-          k == "cb4" ||
-          k == "cb5"
-        ) {
-          cnv0.style.cursor = "row-resize";
-        } else {
-          cnv0.style.cursor = "col-resize";
-        }
-        break;
-      } else {
-        cnv0.style.cursor = "default";
-      }
+function progressUpdate(packet) {
+  var log = document.getElementById("log");
+
+  if (log.firstChild && log.firstChild.status === packet.status) {
+    if ("progress" in packet) {
+      var progress = log.firstChild.querySelector("progress");
+      progress.value = packet.progress;
     }
-  }
-}
-
-// mousedown ***************************
-cnv0.addEventListener(
-  "mousedown",
-  function (evt) {
-    if (cbEnabled) {
-      isDragging1 = true;
-
-      mousePos1 = oMousePos(cnv0, evt);
-      for (var k in cbs) {
-        ctx0.beginPath();
-        ctx0.rect(cbs[k].x - 5, cbs[k].y - 5, cbs[k].w + 20, cbs[k].h + 20);
-        if (ctx0.isPointInPath(mousePos1.x, mousePos1.y)) {
-          cbs[k].bool = true;
-          if (k == "cb1" || k == "cb1a") {
-            if (cb1aEnbld) {
-              cbs[k].y = mousePos1.y;
-            } else {
-              cbs.cb1.y = mousePos1.y;
-              cbs.cb1a.y = mousePos1.y;
-            }
-          } else if (k == "cb2" || k == "cb3" || k == "cb4" || k == "cb5") {
-            cbs[k].y = mousePos1.y;
-          } else {
-            cbs[k].x = mousePos1.x;
-          }
-          break;
-        } else {
-          cbs[k].bool = false;
-        }
-      }
-    }
-  },
-  false
-);
-
-// mousemove ***************************
-cnv0.addEventListener(
-  "mousemove",
-  function (evt) {
-    mousePos1 = oMousePos(cnv0, evt); //console.log(mousePos)
-    cursorStyleC1();
-
-    if (isDragging1 == true) {
-      ctx0.clearRect(0, 0, cw, ch);
-
-      for (var k in cbs) {
-        if (cbs[k].bool) {
-          if (k == "cb1" || k == "cb1a") {
-            if (cb1aEnbld) {
-              cbs[k].y = mousePos1.y;
-            } else {
-              cbs.cb1.y = mousePos1.y;
-              cbs.cb1a.y = mousePos1.y;
-            }
-          } else if (k == "cb2" || k == "cb3" || k == "cb4" || k == "cb5") {
-            cbs[k].y = mousePos1.y;
-          } else {
-            cbs[k].x = mousePos1.x;
-          }
-          break;
-        }
-      }
-
-      drawCroppingBars();
-      drawCroppedImages();
-    }
-  },
-  false
-);
-
-// mouseup ***************************
-cnv0.addEventListener(
-  "mouseup",
-  function (evt) {
-    isDragging1 = false;
-    for (var k in cbs) {
-      cbs[k].bool = false;
-    }
-  },
-  false
-);
-
-// mouseout ***************************
-cnv0.addEventListener(
-  "mouseout",
-  function (evt) {
-    isDragging1 = false;
-    for (var k in cbs) {
-      cbs[k].bool = false;
-    }
-  },
-  false
-);
-
-function oMousePos(canvas, evt) {
-  var rect = canvas.getBoundingClientRect();
-  return {
-    x: Math.round(evt.clientX - rect.left),
-    y: Math.round(evt.clientY - rect.top),
-  };
-}
-
-catElement.addEventListener("change", (event) => {
-  if (event.target.value == "Structure") {
-    cb1aEnbld = true;
-    cbs.cb1.y = cb1;
-    cbs.cb1a.y = 123;
-    cbs.cb2.y = 177;
-    cbs.cb3.y = 218;
-    cbs.cb4.y = 273;
-    cbs.cb5.y = 325;
-  } else if (event.target.value == "Frames") {
-    cb1aEnbld = true;
-    cbs.cb1.y = cb1;
-    cbs.cb1a.y = 123;
-    cbs.cb2.y = 162;
-    cbs.cb3.y = 202;
-    cbs.cb4.y = 237;
-    cbs.cb5.y = 325;
-  } else if (event.target.value == "Decor") {
-    cb1aEnbld = true;
-    cbs.cb1.y = cb1;
-    cbs.cb1a.y = 85;
-    cbs.cb2.y = 177;
-    cbs.cb3.y = 218;
-    cbs.cb4.y = 218;
-    cbs.cb5.y = 325;
-  } else if (event.target.value == "Cabins") {
-    cb1aEnbld = false;
-    cbs.cb1.y = cb1;
-    cbs.cb1a.y = cb1a;
-    cbs.cb2.y = 163;
-    cbs.cb3.y = 204;
-    cbs.cb4.y = 320;
-    cbs.cb5.y = 374;
-  } else if (event.target.value == "Movement") {
-    cb1aEnbld = false;
-    cbs.cb1.y = cb1;
-    cbs.cb1a.y = cb1a;
-    cbs.cb2.y = cb2;
-    cbs.cb3.y = cb3;
-    cbs.cb4.y = 237;
-    cbs.cb5.y = cb5;
-  } else if (event.target.value == "Hardware") {
-    cb1aEnbld = false;
-    cbs.cb1.y = cb1;
-    cbs.cb1a.y = cb1a;
-    cbs.cb2.y = 176;
-    cbs.cb3.y = 217;
-    cbs.cb4.y = 292;
-    cbs.cb5.y = 366;
   } else {
-    cb1aEnbld = false;
-    cbs.cb1.y = cb1;   //59
-    cbs.cb1a.y = cb1a; //59
-    cbs.cb2.y = cb2;   //118
-    cbs.cb3.y = cb3;   //158
-    cbs.cb4.y = cb4;   //273
-    cbs.cb5.y = cb5;   //348
-}
-  if (cbEnabled) {
-    ctx0.clearRect(0, 0, cw, ch);
-    drawCroppingBars();
-    drawCroppedImages();
-    clearForm();
-    ocrImages();
+    var line = document.createElement("div");
+    line.status = packet.status;
+    var status = document.createElement("div");
+    status.className = "status";
+    status.appendChild(document.createTextNode(packet.status));
+    line.appendChild(status);
+
+    if ("progress" in packet) {
+      var progress = document.createElement("progress");
+      progress.value = packet.progress;
+      progress.max = 1;
+      line.appendChild(progress);
+    }
+
+    if (packet.status == "done") {
+      var pre = document.createElement("pre");
+      pre.appendChild(document.createTextNode(packet.data.text));
+      line.innerHTML = "";
+      line.appendChild(pre);
+    }
+
+    log.insertBefore(line, log.firstChild);
   }
-});
+}
+
+async function recognizeFile(file) {
+  //document.querySelector("#log").innerHTML = "";
+
+  const lang = document.querySelector("#langsel").value;
+  const data = await Tesseract.recognize(file, lang, {
+    logger: progressUpdate,
+  });
+  progressUpdate({ status: "done", data });
+  return data;
+}
 
 var form = document.getElementById("form");
+const submitURL =
+  "https://script.google.com/macros/s/AKfycbwedtt9rbWyb34xnfN3zv_2ijjGsaA1pT5Kjc9MDa4ZVdo3w4bDaJ7ECw/exec";
 form.addEventListener("submit", (e) => {
   e.preventDefault();
-  fetch(form.action, {
+  fetch(submitURL, {
     method: "POST",
-    body: new FormData(document.getElementById("form")),
+    body: new FormData(form),
   })
-    .then((response) => response.json())
+    .then((response) => console.log("Success!", response))
     .then((html) => {
       // you can put any JS code here
-      alert("success");
+      // alert("Success!");
     });
 });
 
-function clearForm() {
-  var cat = catElement.value;
+function appendOCR_results(text) {
+  var pre = document.createElement("pre");
+  pre.appendChild(document.createTextNode(text));
+  document.getElementById("ocr_results").appendChild(pre);
+}
+
+function initForm() {
+  var category = document.getElementById("category").value;
   var faction = document.getElementById("faction").value;
   var lvl = document.getElementById("level").value;
 
   document.getElementById("form").reset();
 
-  document.getElementById("desc").textContent = '';
-  document.getElementById("perks").textContent = '';
-  var stats1 = document.getElementById("stats1");
-  while (stats1.hasChildNodes()) {
-    stats1.removeChild(stats1.lastChild);
-  }
-  var stats2 = document.getElementById("stats2");
-  while (stats2.hasChildNodes()) {
-    stats2.removeChild(stats2.lastChild);
-  }
-  var ctx4a = cnv4a.getContext("2d");
-  cnv4a.height = 40;
-  ctx4a.clearRect(0, 0, cnv4a.width, cnv4a.height);
-  var ctx5a = cnv5a.getContext("2d");
-  cnv5a.height = 40;
-  ctx5a.clearRect(0, 0, cnv5a.width, cnv5a.height);
+  document.getElementById("desc").textContent = "";
+  document.getElementById("form_stats").innerHTML = "";
+  document.getElementById("form_perks").innerHTML = "";
+  document.getElementById("ocr_results").innerHTML = "";
 
-  catElement.value = cat;
+  // var stats = document.getElementById("form_stats");
+  // while (stats.hasChildNodes()) {
+  //   stats.removeChild(stats.lastChild);
+  // }
+  // var perks = document.getElementById("form_perks");
+  // while (perks.hasChildNodes()) {
+  //   perks.removeChild(perks.lastChild);
+  // }
+
+  document.getElementById("category").value = category;
   document.getElementById("faction").value = faction;
   document.getElementById("level").value = lvl;
 }
@@ -981,6 +865,20 @@ function clearForm() {
 function myError(err, message) {
   console.warn(`MyError: ${message || ""}`);
   console.error(err);
+}
+
+function jsonp(url, callback) {
+  var callbackName = "jsonp_callback_" + Math.round(100000 * Math.random());
+  window[callbackName] = function (data) {
+    delete window[callbackName];
+    document.body.removeChild(script);
+    callback(data);
+  };
+
+  var script = document.createElement("script");
+  script.src = url + "&tqx=responseHandler:" + callbackName;
+  // url + (url.indexOf("?") >= 0 ? "&" : "?") + "callback=" + callbackName;
+  document.body.appendChild(script);
 }
 
 function detectFeatures(img) {
@@ -998,5 +896,14 @@ function detectFeatures(img) {
   var container = document.getElementById("cnv_stats1");
   container.appendChild(cnv);
   cv.imshow(cnv, src);
-  src.delete(); dst.delete(); mask.delete();
+  src.delete();
+  dst.delete();
+  mask.delete();
 }
+
+// TODO: better progress status
+// TODO: better error logging
+// TODO: upgrade tesseract
+// TODO: improve image preproccesing
+// TODO: improve image inputing clip pasting/batch processing
+// TODO: add feature detection
