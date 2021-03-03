@@ -1,5 +1,9 @@
-var proportion = 1; // ratio of canvas size / original image
 var img_org = new Image(); // original image
+// Based on ideal capital letter size of 30-34px
+// https://groups.google.com/g/tesseract-ocr/c/Wdh_JJwnw94/m/24JHDYQbBQAJ
+var ideal_iw = 1280;
+var max_cw = 512;
+var proportion = 1; // ratio of canvas size / original image
 var title_color;
 var SSID = "1gdJ6sYWlI_b3C5v1b9uhLEsDBENlW7oQR02WgWIxSVc";
 var master_sheet = "1587708941";
@@ -25,8 +29,8 @@ var cnv_title = document.createElement("canvas");
 var ctx_title = cnv_title.getContext("2d");
 
 var iw, ih;
-var cw = (cnv0.width = cnv_ocr.width = ~~(512 * proportion));
-var ch = (cnv0.height = cnv_ocr.height = ~~(640 * proportion));
+var cw = (cnv0.width = cnv_ocr.width = max_cw);
+var ch = (cnv0.height = cnv_ocr.height = ~~(max_cw * 1.5));
 ctx0.fillStyle = "#000000";
 ctx0.font = "16px Courier";
 ctx0.textAlign = "center";
@@ -112,10 +116,8 @@ $("html").pasteImageReader(function (results) {
   $size.val(results.file.size);
   $type.val(results.file.type);
   img_org.src = dataURL;
-  iw = img_org.width;
-  ih = img_org.height;
-  $width.val(iw);
-  $height.val(ih);
+  $width.val(img_org.width);
+  $height.val(img_org.height);
 
   return (
     $(".active")
@@ -653,26 +655,37 @@ function rgbToHex(r, g, b) {
 }
 
 img_org.onload = function () {
-  iw = img_org.width;
-  ih = img_org.height;
-  //proportion = cw / iw;
-  cw = ~~(iw * proportion);
-  ch = ~~(ih * proportion);
+  var scale = ideal_iw / img_org.width;
+
+  // cnv_org.width = iw;
+  // cnv_org.height = ih;
+  // ctx_org.drawImage(img_org, 0, 0, iw, ih);
+  cv.imshow(cnv_org, scaleImage(img_org, scale));
+  if(max_cw > 0) {
+    iw = cnv_org.width;
+    ih = cnv_org.height;
+    proportion = max_cw / iw;
+    cw = max_cw;
+    ch = ~~(ih * proportion);
+  } else {
+    iw = img_org.width;
+    ih = img_org.height;
+    cw = ~~(iw * proportion);
+    ch = ~~(ih * proportion);
+  }
+  
+  console.log('iw: %s, ih: %s, cw: %s, ch: %s', iw, ih, cw, ch);
 
   update_cimgs();
   initForm();
 
   cnv0.width = cw;
   cnv0.height = ch;
-  ctx0.clearRect(0, 0, cw, ch);
-  cnv0.style.backgroundImage = "url(" + img_org.src + ")";
+  cnv0.style.backgroundImage = 'url(' + cnv_org.toDataURL() + ')';
 
   cnv_ocr.width = cw;
   cnv_ocr.height = ch;
 
-  cnv_org.width = iw;
-  cnv_org.height = ih;
-  ctx_org.drawImage(img_org, 0, 0, iw, ih);
   title_color = getColor(ctx_org.getImageData(10, 10, 10, 10));
   var title_gs = ~~((title_color.r + title_color.g + title_color.b) / 3);
   document.getElementById("rarity").value = getRarity(title_color);
@@ -680,7 +693,7 @@ img_org.onload = function () {
   cnv_inv.width = iw;
   cnv_inv.height = ih;
   ctx_inv.filter = "invert(1)";
-  ctx_inv.drawImage(img_org, 0, 0, iw, ih);
+  ctx_inv.drawImage(cnv_org, 0, 0, iw, ih);
 
   cnv_filter.width = iw;
   cnv_filter.height = ih;
@@ -690,7 +703,7 @@ img_org.onload = function () {
   cnv_title.height = cimgs.title.sh;
   ctx_title.filter = "invert(1)";
   ctx_title.drawImage(
-    img_org,
+    cnv_org,
     cimgs.title.sx,
     cimgs.title.sy,
     cimgs.title.sw,
@@ -715,6 +728,17 @@ img_org.onload = function () {
 
   ocrImage();
 };
+
+function scaleImage(img, scale) {
+  let src = cv.imread(img);
+  let dst = new cv.Mat();
+  let dsize = new cv.Size(0, 0);
+  let interpolation = cv.INTER_CUBIC;
+  if(scale < 1) { interpolation = cv.INTER_AREA; }
+  cv.resize(src, dst, dsize, scale, scale, interpolation);
+  src.delete();  
+  return dst;
+}
 
 function filterImg(img, thresh) {
   let src = cv.imread(img);
@@ -845,6 +869,9 @@ function initForm() {
   var category = document.getElementById("category").value;
   var faction = document.getElementById("faction").value;
   var lvl = document.getElementById("level").value;
+
+  ctx0.clearRect(0, 0, cw, ch);
+  ctx_ocr.clearRect(0, 0, cw, ch);
 
   document.getElementById("form").reset();
 
