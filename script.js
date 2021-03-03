@@ -5,8 +5,6 @@ var ideal_iw = 1280;
 var max_cw = 512;
 var proportion = 1; // ratio of canvas size / original image
 var title_color;
-var SSID = "1gdJ6sYWlI_b3C5v1b9uhLEsDBENlW7oQR02WgWIxSVc";
-var master_sheet = "1587708941";
 
 // const worker = Tesseract.createWorker({
 //   logger: m => console.log(m)
@@ -280,34 +278,56 @@ function processTitleOCR(data) {
   document.getElementById("name").value = iname;
   document.getElementById("type").value = itype;
 
-  var query = encodeURIComponent("SELECT * WHERE A='" + iname + "'");
-  var url =
-    "https://docs.google.com/spreadsheets/d/" +
-    SSID +
-    "/gviz/tq?gid=" +
-    master_sheet +
-    "&tq=" +
-    query;
-  jsonp(url, function (json_data) {
-    // console.log(url);
-    // console.log(json_data);
-    if (typeof json_data.table.rows[0] === "undefined") {
-      // TODO: Add error proccessing
-      console.log('"' + iname + '" was not found in database.');
+  var xoDB_query = encodeURIComponent(iname);
+  var xoDB_url = "https://crossoutdb.com/api/v1/items?query=" + xoDB_query;
+  getJSON(xoDB_url, function (err, json_data) {
+    if (err != null) {
+      console.error(err);
     } else {
-      // var rarity = json_data.table.rows[0].c[1].v;
+      console.log(json_data);
+      // var rarity = json_data[0].rarityName;
       var faction = "Shop";
-      if (json_data.table.rows[0].c[2] != null) {
-        faction = json_data.table.rows[0].c[2].v;
+      if (json_data[0] != null) {
+        faction = json_data[0].faction;
       }
-      var category = json_data.table.rows[0].c[3].v;
-      // var type = json_data.table.rows[0].c[4].v;
-      var id = json_data.table.rows[0].c[5].v;
+      var category = json_data[0].categoryName;
+      // var type = json_data[0].typeName;
+      var id = json_data[0].id;
       document.getElementById("category").value = category;
       document.getElementById("faction").value = faction;
       document.getElementById("id").value = id;
     }
   });
+
+  // var query = encodeURIComponent("SELECT * WHERE A='" + iname + "'");
+  // var url =
+  //   "https://docs.google.com/spreadsheets/d/" +
+  //   SSID +
+  //   "/gviz/tq?gid=" +
+  //   master_sheet +
+  //   "&tq=" +
+  //   query;
+
+  // jsonp(url, function (json_data) {
+  //   // console.log(url);
+  //   // console.log(json_data);
+  //   if (typeof json_data.table.rows[0] === "undefined") {
+  //     // TODO: Add error proccessing
+  //     console.log('"' + iname + '" was not found in database.');
+  //   } else {
+  //     // var rarity = json_data.table.rows[0].c[1].v;
+  //     var faction = "Shop";
+  //     if (json_data.table.rows[0].c[2] != null) {
+  //       faction = json_data.table.rows[0].c[2].v;
+  //     }
+  //     var category = json_data.table.rows[0].c[3].v;
+  //     // var type = json_data.table.rows[0].c[4].v;
+  //     var id = json_data.table.rows[0].c[5].v;
+  //     document.getElementById("category").value = category;
+  //     document.getElementById("faction").value = faction;
+  //     document.getElementById("id").value = id;
+  //   }
+  // });
   appendOCR_results(data.text);
 }
 
@@ -514,7 +534,6 @@ function processStatsOCR(data, cimg) {
     console.error(err.stack);
     // TODO: Add error proccessing
   }
-
 }
 
 function processStatsVal(line, cimg, name, label, type) {
@@ -635,7 +654,7 @@ function getRarity(rgb) {
 function processBar(img) {
   var colors = {
     "#000000": 0,
-    "#b3b3b3": 0
+    "#b3b3b3": 0,
   };
   for (var x = 0; x < img.width; x++) {
     for (var y = 0; y < img.height; y++) {
@@ -661,7 +680,7 @@ img_org.onload = function () {
   // cnv_org.height = ih;
   // ctx_org.drawImage(img_org, 0, 0, iw, ih);
   cv.imshow(cnv_org, scaleImage(img_org, scale));
-  if(max_cw > 0) {
+  if (max_cw > 0) {
     iw = cnv_org.width;
     ih = cnv_org.height;
     proportion = max_cw / iw;
@@ -673,15 +692,15 @@ img_org.onload = function () {
     cw = ~~(iw * proportion);
     ch = ~~(ih * proportion);
   }
-  
-  console.log('iw: %s, ih: %s, cw: %s, ch: %s', iw, ih, cw, ch);
+
+  // console.log('iw: %s, ih: %s, cw: %s, ch: %s', iw, ih, cw, ch);
 
   update_cimgs();
   initForm();
 
   cnv0.width = cw;
   cnv0.height = ch;
-  cnv0.style.backgroundImage = 'url(' + cnv_org.toDataURL() + ')';
+  cnv0.style.backgroundImage = "url(" + cnv_org.toDataURL() + ")";
 
   cnv_ocr.width = cw;
   cnv_ocr.height = ch;
@@ -734,9 +753,11 @@ function scaleImage(img, scale) {
   let dst = new cv.Mat();
   let dsize = new cv.Size(0, 0);
   let interpolation = cv.INTER_CUBIC;
-  if(scale < 1) { interpolation = cv.INTER_AREA; }
+  if (scale < 1) {
+    interpolation = cv.INTER_AREA;
+  }
   cv.resize(src, dst, dsize, scale, scale, interpolation);
-  src.delete();  
+  src.delete();
   return dst;
 }
 
@@ -939,3 +960,21 @@ function detectFeatures(img) {
 // TODO: improve image preproccesing
 // TODO: improve image inputing clip pasting/batch processing
 // TODO: add feature detection
+
+var getJSON = function (url, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", url, true);
+  xhr.responseType = "json";
+
+  xhr.onload = function () {
+    var status = xhr.status;
+
+    if (status == 200) {
+      callback(null, xhr.response);
+    } else {
+      callback(status);
+    }
+  };
+
+  xhr.send();
+};
