@@ -300,8 +300,10 @@ function processTitleOCR(data) {
       }
       var category = json_data.table.rows[0].c[3].v;
       // var type = json_data.table.rows[0].c[4].v;
+      var id = json_data.table.rows[0].c[5].v;
       document.getElementById("category").value = category;
       document.getElementById("faction").value = faction;
+      document.getElementById("id").value = id;
     }
   });
   appendOCR_results(data.text);

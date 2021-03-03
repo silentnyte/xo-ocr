@@ -25,3 +25,5 @@ Future Improvement:
 - Error logging
 - Batch processing
 - Add item feature detection
+
+All other files and directories are licensed under the [MIT](http://www.opensource.org/licenses/mit-license.php) unless explicitly stated.
