@@ -284,10 +284,14 @@ function processTitleOCR(data) {
     if (err != null) {
       console.error(err);
     } else {
-      console.log(json_data);
+      // console.log(json_data);
+      if(typeof json_data[0] === "undefined") {
+        // TODO: Add error proccessing
+        console.log('"' + iname + '" was not found in database.');
+      } else {
       // var rarity = json_data[0].rarityName;
       var faction = "Shop";
-      if (json_data[0] != null) {
+      if (json_data[0].faction != null) {
         faction = json_data[0].faction;
       }
       var category = json_data[0].categoryName;
@@ -296,6 +300,7 @@ function processTitleOCR(data) {
       document.getElementById("category").value = category;
       document.getElementById("faction").value = faction;
       document.getElementById("id").value = id;
+      }
     }
   });
 
