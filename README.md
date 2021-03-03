@@ -1,6 +1,8 @@
 # xo-ocr
 Crossout Item OCR
 
+![Crossout Item OCR Image](https://i.imgur.com/FDNT8Uw.png "Crossout Item OCR")
+
 I started this project because I wanted to do some item data analysis and could not find a good up to date source of item data and no easy way to extract the data from the game. I did not want to go though the pains taking effort of manually entering all the data by hand. Enter Tesseract.js. This great litlle library was able to take screenshots of items (with a little pre-proccessing done by OpenCV) and extract the text. All that was left was parsing the text and adding it to a database.
 
 Instructions:
