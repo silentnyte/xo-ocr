@@ -631,7 +631,10 @@ function getRarity(rgb) {
 }
 
 function processBar(img) {
-  var colors = {};
+  var colors = {
+    "#000000": 0,
+    "#b3b3b3": 0
+  };
   for (var x = 0; x < img.width; x++) {
     for (var y = 0; y < img.height; y++) {
       var i = y * 4 * img.width + x * 4;
