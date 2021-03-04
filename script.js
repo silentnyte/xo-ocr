@@ -272,6 +272,7 @@ async function ocrImage() {
         cimgs.stats.sh
       )
     ).then((data) => processStatsOCR(data, cimgs.stats));
+    validate();
   } else {
     //TODO: Add error proccessing if PS not found
     alert('"POWER SCORE" not found in image!');
@@ -588,7 +589,7 @@ function processStatsOCR(data, cimg) {
   }
 }
 
-function processStatsVal(line, cimg, name, label, type) {
+async function processStatsVal(line, cimg, name, label, type) {
   var bb = line.bbox;
   var x = cimg.sx2;
   var y = bb.y0 - cimg.sh2 + cimg.sy;
@@ -609,7 +610,7 @@ function processStatsVal(line, cimg, name, label, type) {
     ctx.drawImage(cnv_inv, x, y, w, h, dx, dy, dw, dh);
   } else {
     addField("form_stats", name, "number", label);
-    recognizeFile(ctx_filter.getImageData(x, y, w, h)).then(
+    await recognizeFile(ctx_filter.getImageData(x, y, w, h)).then(
       (data) =>
         (document.getElementById(name).value = data.text.replace(/[^-\d]/g, "")) //.match(/-?\d+/g))
       //TODO: Add error proccessing if data.text is not a number
@@ -618,7 +619,7 @@ function processStatsVal(line, cimg, name, label, type) {
   }
 }
 
-function processFeatures(startLine, endLine, cimg, name, label, type) {
+async function processFeatures(startLine, endLine, cimg, name, label, type) {
   var x = ~~(iw * 0.47);
   var y = startLine.bbox.y0 - 25 + cimg.sy;
   var w = ~~(iw * 0.49);
@@ -642,7 +643,7 @@ function processFeatures(startLine, endLine, cimg, name, label, type) {
       var fw = 150;
       var fh = 75;
       addField("form_stats", i, "text", i);
-      recognizeFile(ctxf.getImageData(fx, fy, fw, fh)).then(
+      await recognizeFile(ctxf.getImageData(fx, fy, fw, fh)).then(
         (data) =>
           (document.getElementById(i).value = data.text.replace(/[^-\d]/g, "")) //.match(/-?\d+/g))
       );
@@ -661,9 +662,9 @@ function processFeatures(startLine, endLine, cimg, name, label, type) {
   ctx.drawImage(cnv_inv, x, y, w, h, dx, dy, dw, dh);
 }
 
-function processPerks(line, cimg, name, label, type) {
+async function processPerks(line, cimg, name, label, type) {
   addField("form_perks", name, "textarea", label);
-  recognizeFile(ctx_inv.getImageData(cimg.sx, cimg.sy, cimg.sw, cimg.sh)).then(
+  await recognizeFile(ctx_inv.getImageData(cimg.sx, cimg.sy, cimg.sw, cimg.sh)).then(
     (data) => (document.getElementById(name).value = data.text.trim())
   );
 
@@ -1070,3 +1071,61 @@ var getJSON = function (url, callback) {
 
   xhr.send();
 };
+
+$(document).ready(function() {
+  validate();
+  $('input').on('focusout', validate);
+  $('select').on('focusout', validate);
+  $('textarea').on('focusout', validate);
+});
+
+function validate() {
+  var formInvalid = false;
+  
+
+  // get all input fields except for type='submit'
+  var formInputs = $("input[name]");
+
+  formInputs.each(function(e) {
+    // if it has a value, increment the counter
+    // console.log($(this)[0]);
+    if ($(this).val()) {
+      $(this)[0].classList.remove("invalid");
+    } else {
+      $(this)[0].classList.add("invalid");
+      formInvalid = true;
+    }
+  });
+
+  // get all input fields except for type='submit'
+  var formSelects = $("select[name]");
+
+  formSelects.each(function(e) {
+    // if it has a value, increment the counter
+    if ($(this).val() != 'Choose...') {
+      $(this)[0].classList.remove("invalid");
+    } else {
+      $(this)[0].classList.add("invalid");
+      formInvalid = true;
+    }
+  });
+
+  // get all input fields except for type='submit'
+  var formTextAreas = $("textarea[name]");
+
+  formTextAreas.each(function(e) {
+    // if it has a value, increment the counter
+    if ($(this).val()) {
+      $(this)[0].classList.remove("invalid");
+    } else {
+      $(this)[0].classList.add("invalid");
+      formInvalid = true;
+    }
+  });
+
+  if (formInvalid) {
+    $("button[type=submit]").prop("disabled", true);
+  } else {
+    $("button[type=submit]").prop("disabled", false);
+  }
+}
