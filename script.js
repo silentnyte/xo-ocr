@@ -11,6 +11,7 @@ var title_color;
 // });
 // Tesseract.setLogging(true);
 
+var form = document.getElementById("form");
 var ocr_info = document.getElementById("log");
 var cnv0 = document.getElementById("cnv_org");
 var ctx0 = cnv0.getContext("2d");
@@ -958,9 +959,8 @@ async function recognizeFile(file) {
   return data;
 }
 
-var form = document.getElementById("form");
 const submitURL =
-  "https://script.google.com/macros/s/AKfycbwedtt9rbWyb34xnfN3zv_2ijjGsaA1pT5Kjc9MDa4ZVdo3w4bDaJ7ECw/exec";
+  "https://script.google.com/macros/s/AKfycbxDJYFwbtzEF9Xarhi4P6G34FQS4dRdCGiWSshXYjYjF6MylxssyqL2dFRvi2JUziG0/exec";
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   fetch(submitURL, {
