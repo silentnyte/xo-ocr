@@ -24,17 +24,25 @@
             <div class="row flex-nowrap">
                 <div class="col-sm-auto">
                     <canvas id='cnv_org' class="target contain"></canvas>
-
-                    <br />
-
-                    <select id="langsel" onchange="window.lastFile && recognizeFile(window.lastFile)">
-                        <option value='eng' selected> English </option>
-                        <option value='rus'> Russian </option>
-                    </select>
-
-                    <br />
-
-                    <div id='log'>
+                    <div class="row flex-nowrap">
+                        <div class="col-sm-auto">
+                            <select id="langsel" onchange="window.lastFile && recognizeFile(window.lastFile)">
+                                <option value='eng' selected> English </option>
+                                <option value='rus'> Russian </option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="debug_ocr">
+                                <label class="form-check-label" for="debug_ocr">Debug OCR</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row flex-nowrap">
+                        <div class="col">
+                            <div id='log'>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-sm-auto">

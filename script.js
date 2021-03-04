@@ -12,6 +12,7 @@ var title_color;
 // Tesseract.setLogging(true);
 
 var form = document.getElementById("form");
+var debug_ocr = document.getElementById("debug_ocr");
 var ocr_info = document.getElementById("log");
 var cnv0 = document.getElementById("cnv_org");
 var ctx0 = cnv0.getContext("2d");
@@ -976,9 +977,11 @@ form.addEventListener("submit", (e) => {
 });
 
 function appendOCR_results(text) {
-  var pre = document.createElement("pre");
-  pre.appendChild(document.createTextNode(text));
-  document.getElementById("ocr_results").appendChild(pre);
+  if(debug_ocr.checked) {
+    var pre = document.createElement("pre");
+    pre.appendChild(document.createTextNode(text));
+    document.getElementById("ocr_results").appendChild(pre);
+  }
 }
 
 function initForm() {
