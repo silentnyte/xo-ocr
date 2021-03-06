@@ -403,12 +403,7 @@ function processDescOCR(data, cimg) {
         var val = txtsplit[txtsplit.length - 1].replace(/[^-\d]/g, "");
         document.getElementById("increases_reputation").value = val;
       } else if (txt.match("Top speed")) {
-        addField(
-          "form_stats",
-          "top_speed",
-          "number",
-          "Top speed"
-        );
+        addField("form_stats", "top_speed", "number", "Top speed");
         var txtsplit = txt.split(" ");
         var val = txtsplit[3].replace(/[^-\d]/g, "");
         document.getElementById("top_speed").value = val;
@@ -562,7 +557,12 @@ async function processStatsOCR(data, cimg) {
         } else if (label != "" && type != "") {
           await processStatsVal(data.lines[l], cimg, name, label, type);
         } else {
-          addAlert('"' + name + '" is not a known stat.\nDetected text: ' + data.lines[l].text);
+          addAlert(
+            '"' +
+              name +
+              '" is not a known stat.\nDetected text: ' +
+              data.lines[l].text
+          );
           //TODO: Add error proccessing if Stat not found
         }
       }
@@ -573,7 +573,14 @@ async function processStatsOCR(data, cimg) {
     if (featuresLine != 0) {
       label = "Feature";
       type = "feature";
-      await processFeatures(featuresLine, durabilityLine, cimg, name, label, type);
+      await processFeatures(
+        featuresLine,
+        durabilityLine,
+        cimg,
+        name,
+        label,
+        type
+      );
     }
     if (cimg.sh - massLine.bbox.y1 > 50) {
       cimgs.perks.sy = massLine.bbox.y1 + cimg.sy + ~~(iw * 0.05);
@@ -648,13 +655,15 @@ async function processFeatures(startLine, endLine, cimg, name, label, type) {
         (data) =>
           (document.getElementById(i).value = data.text.replace(/[^-\d]/g, "")) //.match(/-?\d+/g))
       );
-      var container = document.getElementById("test_results");
-      var fcnv = document.createElement("canvas");
-      var fctx = fcnv.getContext("2d");
-      fcnv.width = fw;
-      fcnv.height = fh;
-      fctx.drawImage(cnvf, fx, fy, fw, fh, 0, 0, fw, fh);
-      container.appendChild(fcnv);
+      if (debug_ocr.checked) {
+        var container = document.getElementById("test_results");
+        var fcnv = document.createElement("canvas");
+        var fctx = fcnv.getContext("2d");
+        fcnv.width = fw;
+        fcnv.height = fh;
+        fctx.drawImage(cnvf, fx, fy, fw, fh, 0, 0, fw, fh);
+        container.appendChild(fcnv);
+      }
     }
   }
 
@@ -665,9 +674,9 @@ async function processFeatures(startLine, endLine, cimg, name, label, type) {
 
 async function processPerks(line, cimg, name, label, type) {
   addField("form_perks", name, "textarea", label);
-  await recognizeFile(ctx_inv.getImageData(cimg.sx, cimg.sy, cimg.sw, cimg.sh)).then(
-    (data) => (document.getElementById(name).value = data.text.trim())
-  );
+  await recognizeFile(
+    ctx_inv.getImageData(cimg.sx, cimg.sy, cimg.sw, cimg.sh)
+  ).then((data) => (document.getElementById(name).value = data.text.trim()));
 
   drawOCR(cnv_inv, "cnv_ocr", cimg);
 }
@@ -977,7 +986,7 @@ form.addEventListener("submit", (e) => {
 });
 
 function appendOCR_results(text) {
-  if(debug_ocr.checked) {
+  if (debug_ocr.checked) {
     var pre = document.createElement("pre");
     pre.appendChild(document.createTextNode(text));
     document.getElementById("ocr_results").appendChild(pre);
@@ -1040,10 +1049,12 @@ function detectFeatures(img, trg) {
     let color = new cv.Scalar(255, 0, 0, 255);
     let point = new cv.Point(maxPoint.x + templ.cols, maxPoint.y + templ.rows);
     cv.rectangle(src, maxPoint, point, color, 2, cv.LINE_8, 0);
-    var container = document.getElementById("test_results");
-    var cnv = document.createElement("canvas");
-    container.appendChild(cnv);
-    cv.imshow(cnv, src);
+    if (debug_ocr.checked) {
+      var container = document.getElementById("test_results");
+      var cnv = document.createElement("canvas");
+      container.appendChild(cnv);
+      cv.imshow(cnv, src);
+    }
   }
   src.delete();
   dst.delete();
@@ -1070,21 +1081,20 @@ var getJSON = function (url, callback) {
   xhr.send();
 };
 
-$(document).ready(function() {
+$(document).ready(function () {
   validate();
-  $('input').on('focusout', validate);
-  $('select').on('focusout', validate);
-  $('textarea').on('focusout', validate);
+  $("input").on("focusout", validate);
+  $("select").on("focusout", validate);
+  $("textarea").on("focusout", validate);
 });
 
 function validate() {
   var formInvalid = false;
-  
 
   // get all input fields except for type='submit'
   var formInputs = $("input[name]");
 
-  formInputs.each(function(e) {
+  formInputs.each(function (e) {
     // if it has a value, increment the counter
     // console.log($(this)[0]);
     if ($(this).val()) {
@@ -1098,9 +1108,9 @@ function validate() {
   // get all input fields except for type='submit'
   var formSelects = $("select[name]");
 
-  formSelects.each(function(e) {
+  formSelects.each(function (e) {
     // if it has a value, increment the counter
-    if ($(this).val() != 'Choose...') {
+    if ($(this).val() != "Choose...") {
       $(this)[0].classList.remove("invalid");
     } else {
       $(this)[0].classList.add("invalid");
@@ -1111,7 +1121,7 @@ function validate() {
   // get all input fields except for type='submit'
   var formTextAreas = $("textarea[name]");
 
-  formTextAreas.each(function(e) {
+  formTextAreas.each(function (e) {
     // if it has a value, increment the counter
     if ($(this).val()) {
       $(this)[0].classList.remove("invalid");
