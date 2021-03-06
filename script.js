@@ -829,8 +829,6 @@ img_org.onload = function () {
     cimgs.title.sw,
     cimgs.title.sh
   );
-  alert('gs: ' + title_gs + ', inv: ' + (255 - title_gs - 50));
-  // if(title_gs > 170) { title_gs = 25; }
   cv.imshow(cnv_title, filterImg(cnv_title, 255 - title_gs - 50));
   ctx_ocr.drawImage(
     cnv_title,
