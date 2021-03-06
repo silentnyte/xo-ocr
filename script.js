@@ -12,6 +12,7 @@ var title_color;
 // Tesseract.setLogging(true);
 
 var form = document.getElementById("form");
+var item_name = document.getElementById("name");
 var debug_ocr = document.getElementById("debug_ocr");
 var ocr_info = document.getElementById("log");
 var cnv0 = document.getElementById("cnv_org");
@@ -298,7 +299,13 @@ function processTitleOCR(data) {
   document.getElementById("name").value = iname;
   document.getElementById("type").value = itype;
 
-  var xoDB_query = encodeURIComponent(iname);
+  getXODB(iname);
+
+  appendOCR_results(data.text);
+}
+
+function getXODB(name) {
+  var xoDB_query = encodeURIComponent(name);
   var xoDB_url = "https://crossoutdb.com/api/v1/items?query=" + xoDB_query;
   getJSON(xoDB_url, function (err, json_data) {
     if (err != null) {
@@ -307,7 +314,7 @@ function processTitleOCR(data) {
       // console.log(json_data);
       if (typeof json_data[0] === "undefined") {
         // TODO: Add error proccessing
-        addAlert('"' + iname + '" was not found in database.');
+        addAlert('"' + name + '" was not found in database.');
       } else {
         var rarity = json_data[0].rarityName;
         var faction = "Shop";
@@ -324,37 +331,38 @@ function processTitleOCR(data) {
       }
     }
   });
+}
 
-  // var query = encodeURIComponent("SELECT * WHERE A='" + iname + "'");
-  // var url =
-  //   "https://docs.google.com/spreadsheets/d/" +
-  //   SSID +
-  //   "/gviz/tq?gid=" +
-  //   master_sheet +
-  //   "&tq=" +
-  //   query;
+function getSheetData() {
+  var query = encodeURIComponent("SELECT * WHERE A='" + iname + "'");
+  var url =
+    "https://docs.google.com/spreadsheets/d/" +
+    SSID +
+    "/gviz/tq?gid=" +
+    master_sheet +
+    "&tq=" +
+    query;
 
-  // jsonp(url, function (json_data) {
-  //   // console.log(url);
-  //   // console.log(json_data);
-  //   if (typeof json_data.table.rows[0] === "undefined") {
-  //     // TODO: Add error proccessing
-  //     console.log('"' + iname + '" was not found in database.');
-  //   } else {
-  //     // var rarity = json_data.table.rows[0].c[1].v;
-  //     var faction = "Shop";
-  //     if (json_data.table.rows[0].c[2] != null) {
-  //       faction = json_data.table.rows[0].c[2].v;
-  //     }
-  //     var category = json_data.table.rows[0].c[3].v;
-  //     // var type = json_data.table.rows[0].c[4].v;
-  //     var id = json_data.table.rows[0].c[5].v;
-  //     document.getElementById("category").value = category;
-  //     document.getElementById("faction").value = faction;
-  //     document.getElementById("id").value = id;
-  //   }
-  // });
-  appendOCR_results(data.text);
+  jsonp(url, function (json_data) {
+    // console.log(url);
+    // console.log(json_data);
+    if (typeof json_data.table.rows[0] === "undefined") {
+      // TODO: Add error proccessing
+      console.log('"' + iname + '" was not found in database.');
+    } else {
+      // var rarity = json_data.table.rows[0].c[1].v;
+      var faction = "Shop";
+      if (json_data.table.rows[0].c[2] != null) {
+        faction = json_data.table.rows[0].c[2].v;
+      }
+      var category = json_data.table.rows[0].c[3].v;
+      // var type = json_data.table.rows[0].c[4].v;
+      var id = json_data.table.rows[0].c[5].v;
+      document.getElementById("category").value = category;
+      document.getElementById("faction").value = faction;
+      document.getElementById("id").value = id;
+    }
+  });
 }
 
 function locatePS(data, cimg) {
@@ -412,6 +420,7 @@ function processDescOCR(data, cimg) {
         !txt.match("Not tradable") &&
         !txt.match("Does not take up storage space") &&
         !txt.match("Non-salvageable") &&
+        !txt.match("Non—salvageable") &&
         !txt.match("Not for fusion") &&
         !txt.match("mounted on a vehicle")
       ) {
@@ -590,7 +599,7 @@ async function processStatsOCR(data, cimg) {
         type
       );
     }
-    if (cimg.sh - massLine.bbox.y1 > 50) {
+    if (cimg.sh - massLine.bbox.y1 > 75) {
       cimgs.perks.sy = massLine.bbox.y1 + cimg.sy + ~~(iw * 0.05);
       cimgs.perks.sh = ih - cimgs.perks.sy;
       await processPerks(massLine, cimgs.perks, "perks", "", "");
@@ -1094,6 +1103,11 @@ $(document).ready(function () {
   $("input").on("focusout", validate);
   $("select").on("focusout", validate);
   $("textarea").on("focusout", validate);
+  $("textarea").on("focusout", validate);
+});
+
+item_name.addEventListener("focusout", (event) => {
+  getXODB(item_name.value);
 });
 
 function validate() {
