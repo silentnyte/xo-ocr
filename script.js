@@ -309,7 +309,7 @@ function processTitleOCR(data) {
         // TODO: Add error proccessing
         addAlert('"' + iname + '" was not found in database.');
       } else {
-        // var rarity = json_data[0].rarityName;
+        var rarity = json_data[0].rarityName;
         var faction = "Shop";
         if (json_data[0].faction != null) {
           faction = json_data[0].faction;
@@ -320,6 +320,7 @@ function processTitleOCR(data) {
         document.getElementById("category").value = category;
         document.getElementById("faction").value = faction;
         document.getElementById("id").value = id;
+        document.getElementById("rarity").value = rarity;
       }
     }
   });
@@ -476,7 +477,14 @@ async function processStatsOCR(data, cimg) {
               type = "text";
             }
             break;
-          case "blast":
+            case "launches":
+              if (txtlc.startsWith("launches")) {
+                name = "max_ammo";
+                label = "Launches";
+                type = "text";
+              }
+              break;
+            case "blast":
             if (txtlc.startsWith("blast power")) {
               name = "blast_power";
               label = "Blast power";
@@ -1110,7 +1118,7 @@ function validate() {
 
   formSelects.each(function (e) {
     // if it has a value, increment the counter
-    if ($(this).val() != "Choose...") {
+    if ($(this).val() != "Choose..." && $(this).val() != "") {
       $(this)[0].classList.remove("invalid");
     } else {
       $(this)[0].classList.add("invalid");
