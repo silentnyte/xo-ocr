@@ -829,7 +829,9 @@ img_org.onload = function () {
     cimgs.title.sw,
     cimgs.title.sh
   );
-  cv.imshow(cnv_title, filterImg(cnv_title, title_gs));
+  alert('gs: ' + title_gs + ', inv: ' + (255 - title_gs - 50));
+  // if(title_gs > 170) { title_gs = 25; }
+  cv.imshow(cnv_title, filterImg(cnv_title, 255 - title_gs - 50));
   ctx_ocr.drawImage(
     cnv_title,
     0,
@@ -998,17 +1000,10 @@ function initForm() {
   document.getElementById("desc").textContent = "";
   document.getElementById("form_stats").innerHTML = "";
   document.getElementById("form_perks").innerHTML = "";
+  document.getElementById("log").innerHTML = "";
   document.getElementById("ocr_results").innerHTML = "";
   document.getElementById("test_results").innerHTML = "";
-
-  // var stats = document.getElementById("form_stats");
-  // while (stats.hasChildNodes()) {
-  //   stats.removeChild(stats.lastChild);
-  // }
-  // var perks = document.getElementById("form_perks");
-  // while (perks.hasChildNodes()) {
-  //   perks.removeChild(perks.lastChild);
-  // }
+  document.getElementById("alerts").innerHTML = "";
 
   document.getElementById("category").value = category;
   document.getElementById("faction").value = faction;
