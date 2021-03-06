@@ -273,7 +273,6 @@ async function ocrImage() {
         cimgs.stats.sh
       )
     ).then((data) => processStatsOCR(data, cimgs.stats));
-    validate();
   } else {
     //TODO: Add error proccessing if PS not found
     alert('"POWER SCORE" not found in image!');
@@ -433,7 +432,7 @@ function processDescOCR(data, cimg) {
   drawOCR(cnv_inv, "cnv_ocr", cimg);
 }
 
-function processStatsOCR(data, cimg) {
+async function processStatsOCR(data, cimg) {
   var featuresLine = 0;
   var durabilityLine = 0;
   var massLine = 0;
@@ -561,7 +560,7 @@ function processStatsOCR(data, cimg) {
         if (name == "features") {
           featuresLine = data.lines[l];
         } else if (label != "" && type != "") {
-          processStatsVal(data.lines[l], cimg, name, label, type);
+          await processStatsVal(data.lines[l], cimg, name, label, type);
         } else {
           addAlert('"' + name + '" is not a known stat.\nDetected text: ' + data.lines[l].text);
           //TODO: Add error proccessing if Stat not found
@@ -574,16 +573,17 @@ function processStatsOCR(data, cimg) {
     if (featuresLine != 0) {
       label = "Feature";
       type = "feature";
-      processFeatures(featuresLine, durabilityLine, cimg, name, label, type);
+      await processFeatures(featuresLine, durabilityLine, cimg, name, label, type);
     }
     if (cimg.sh - massLine.bbox.y1 > 50) {
       cimgs.perks.sy = massLine.bbox.y1 + cimg.sy + ~~(iw * 0.05);
       cimgs.perks.sh = ih - cimgs.perks.sy;
-      processPerks(massLine, cimgs.perks, "perks", "", "");
+      await processPerks(massLine, cimgs.perks, "perks", "", "");
       cimg.sh = cimgs.perks.sy - cimg.sy;
     }
     appendOCR_results(data.text);
     drawOCR(cnv_inv, "cnv_ocr", cimg);
+    validate();
   } catch (err) {
     console.error(err.stack);
     // TODO: Add error proccessing
