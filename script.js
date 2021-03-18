@@ -306,18 +306,22 @@ function processTitleOCR(data) {
 
 function getXODB(name) {
   var xoDB_query = encodeURIComponent(name);
-  var xoDB_url = "https://crossoutdb.com/api/v1/items?query=" + xoDB_query;
+  var xoDB_url = "https://crossoutdb.com/api/v2/items?query=" + xoDB_query;
   getJSON(xoDB_url, function (err, json_data) {
     if (err != null) {
       console.error(err);
     } else {
-      // console.log(json_data);
-      if (typeof json_data[0] === "undefined") {
-        // TODO: Add error proccessing
-        addAlert('"' + name + '" was not found in database.');
-      } else {
+      var data = null;
+      //console.log(json_data.length);
+      for (let j = 0; j < json_data.length; j++) {
+        if (json_data[j].name == name) {
+          data = json_data[j];
+          break;
+        }
+      }
+      if (data != null) {
         var rarity = json_data[0].rarityName;
-        var faction = "Shop";
+        var faction = 'Shop';
         if (json_data[0].faction != null) {
           faction = json_data[0].faction;
         }
@@ -328,6 +332,9 @@ function getXODB(name) {
         document.getElementById("faction").value = faction;
         document.getElementById("id").value = id;
         document.getElementById("rarity").value = rarity;
+      } else {
+          // TODO: Add error proccessing
+          addAlert('"' + name + '" was not found in database.');
       }
     }
   });
