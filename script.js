@@ -376,7 +376,8 @@ function locatePS(data, cimg) {
   for (let l in data.lines) {
     var txt = data.lines[l].text.trim();
     if (txt.length > 0) {
-      var match = /power score/i.exec(txt);
+      txt = txt.replace(/\s/g, "");
+      var match = /powerscore/i.exec(txt);
       if (match != null) {
         cimg.sy = data.lines[l].bbox.y0 - 5;
         cimg.sh = data.lines[l].bbox.y1 - data.lines[l].bbox.y0 + 5;
@@ -387,6 +388,7 @@ function locatePS(data, cimg) {
     }
   }
 
+  appendOCR_results(data.text);
   drawOCR(cnv_filter, "cnv_ocr", cimg);
 }
 
