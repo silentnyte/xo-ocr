@@ -400,38 +400,40 @@ function processDescOCR(data, cimg) {
       for (let j = 0; j < spellchk.length; j++) {
         txt = txt.replace(spellchk[j][0], spellchk[j][1]);
       }
-      if (txt.match("Increases vehicle durability")) {
+      if (txt.match(/Increases vehicle durability/i)) {
         addField(
           "form_stats",
           "increases_durability",
           "number",
-          "Increases vehicle durability"
+          "Increases vehicle durability",
+          false
         );
         var txtsplit = txt.split(" ");
         var val = txtsplit[txtsplit.length - 1].replace(/[^-\d]/g, "");
         document.getElementById("increases_durability").value = val;
-      } else if (txt.match("Increases reputation gain")) {
+      } else if (txt.match(/Increases reputation gain/i)) {
         addField(
           "form_stats",
           "increases_reputation",
           "number",
-          "Increases reputation gain"
+          "Increases reputation gain",
+          false
         );
         var txtsplit = txt.split(" ");
         var val = txtsplit[txtsplit.length - 1].replace(/[^-\d]/g, "");
         document.getElementById("increases_reputation").value = val;
-      } else if (txt.match("Top speed")) {
-        addField("form_stats", "top_speed", "number", "Top speed");
+      } else if (txt.match(/Top speed/i)) {
+        addField("form_stats", "top_speed", "number", "Top speed", false);
         var txtsplit = txt.split(" ");
         var val = txtsplit[3].replace(/[^-\d]/g, "");
         document.getElementById("top_speed").value = val;
       } else if (
-        !txt.match("Not tradable") &&
-        !txt.match("Does not take up storage space") &&
-        !txt.match("Non-salvageable") &&
-        !txt.match("Non—salvageable") &&
-        !txt.match("Not for fusion") &&
-        !txt.match("mounted on a vehicle")
+        !txt.match(/Not tradable/i) &&
+        !txt.match(/Does not take up storage space/i) &&
+        !txt.match(/Non-salvageable/i) &&
+        !txt.match(/Non—salvageable/i) &&
+        !txt.match(/Not for fusion/i) &&
+        !txt.match(/mounted on a vehicle/i)
       ) {
         if (desc != "") {
           desc = desc + "\n";
@@ -638,12 +640,12 @@ async function processStatsVal(line, cimg, name, label, type) {
   var ctx = cnv.getContext("2d");
 
   if (type == "bar") {
-    addField("form_stats", name, "number", label);
+    addField("form_stats", name, "number", label, true);
     var val = processBar(ctx_inv.getImageData(x, syc, w, 1));
     document.getElementById(name).value = val;
     ctx.drawImage(cnv_inv, x, y, w, h, dx, dy, dw, dh);
   } else {
-    addField("form_stats", name, "number", label);
+    addField("form_stats", name, "number", label, false);
     await recognizeFile(ctx_filter.getImageData(x, y, w, h)).then(
       (data) =>
         (document.getElementById(name).value = data.text.replace(/[^-\d]/g, "")) //.match(/-?\d+/g))
@@ -676,7 +678,7 @@ async function processFeatures(startLine, endLine, cimg, name, label, type) {
       var fy = result.maxLoc.y;
       var fw = 150;
       var fh = 75;
-      addField("form_stats", i, "text", i);
+      addField("form_stats", i, "text", i, false);
       await recognizeFile(ctxf.getImageData(fx, fy, fw, fh)).then(
         (data) =>
           (document.getElementById(i).value = data.text.replace(/[^-\d]/g, "")) //.match(/-?\d+/g))
@@ -699,7 +701,7 @@ async function processFeatures(startLine, endLine, cimg, name, label, type) {
 }
 
 async function processPerks(line, cimg, name, label, type) {
-  addField("form_perks", name, "textarea", label);
+  addField("form_perks", name, "textarea", label, false);
   await recognizeFile(
     ctx_inv.getImageData(cimg.sx, cimg.sy, cimg.sw, cimg.sh)
   ).then((data) => (document.getElementById(name).value = data.text.trim()));
@@ -707,7 +709,7 @@ async function processPerks(line, cimg, name, label, type) {
   drawOCR(cnv_inv, "cnv_ocr", cimg);
 }
 
-function addField(parent, name, type, label) {
+function addField(parent, name, type, label, isDec) {
   var container = document.getElementById(parent);
   if (type == "text" || type == "number") {
     var ig = container.appendChild(document.createElement("div"));
@@ -721,7 +723,7 @@ function addField(parent, name, type, label) {
     input.id = name;
     input.name = name;
     input.type = type;
-    input.step = "0.1";
+    if(isDec) { input.step = "0.1"; }
     input.className = "form-control";
   } else {
     var input = container.appendChild(document.createElement("textarea"));
