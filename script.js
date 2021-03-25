@@ -1076,9 +1076,6 @@ function appendOCR_results(text) {
 }
 
 function initForm() {
-  var category = document.getElementById("category").value;
-  var faction = document.getElementById("faction").value;
-  var lvl = document.getElementById("level").value;
   var xoVer = document.getElementById("xoVer").value;
   var uid = document.getElementById("uid").value;
 
@@ -1095,9 +1092,6 @@ function initForm() {
   document.getElementById("test_results").innerHTML = "";
   document.getElementById("alerts").innerHTML = "";
 
-  document.getElementById("category").value = category;
-  document.getElementById("faction").value = faction;
-  document.getElementById("level").value = lvl;
   document.getElementById("xoVer").value = xoVer;
   document.getElementById("uid").value = uid;
 }
