@@ -52,11 +52,14 @@
                 </div>
                 <div class="col">
                     <form id="form" method="post">
-                        <div class="form-row">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Category</span>
-                                </div>
+                        <div class="form-group form-row">
+                            <div class="col-sm-2"></div>
+                            <h5 class="col-sm-5 text-center">Scanned</h5>
+                            <h5 class="col-sm-5 text-center">Current</h5>
+                        </div>
+                        <div class="form-group form-row">
+                            <label class="col-sm-2 col-form-label col-form-label-sm">Category</label>
+                            <div class="col-sm-5">
                                 <select id="category" name="category" class="custom-select">
                                     <option selected>Choose...</option>
                                     <option value="Frames">Frames</option>
@@ -69,12 +72,11 @@
                                     <option value="Customization">Customization</option>
                                 </select>
                             </div>
+                            <label id="current-category" class="col-sm-5 col-form-label col-form-label-sm">Test</label>
                         </div>
-                        <div class="form-row">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Faction</span>
-                                </div>
+                        <div class="form-group form-row">
+                            <label class="col-sm-2 col-form-label col-form-label-sm">Faction</label>
+                            <div class="col-sm-5">
                                 <select id="faction" name="faction" class="custom-select">
                                     <option selected>Choose...</option>
                                     <option value="Shop">Shop</option>
@@ -89,44 +91,39 @@
                                     <option value="Syndicate">Syndicate</option>
                                 </select>
                             </div>
+                            <label id="current-faction" class="col-sm-5 col-form-label col-form-label-sm">Test</label>
                         </div>
-                        <div class="form-row">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Level</span>
-                                </div>
+                        <div class="form-group form-row">
+                            <label class="col-sm-2 col-form-label col-form-label-sm">Level</label>
+                            <div class="col-sm-5">
                                 <input id="level" name="level" type="number" class="form-control">
                             </div>
+                            <label id="current-level" class="col-sm-5 col-form-label col-form-label-sm">Test</label>
                         </div>
-                        <div class="form-row">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">ID</span>
-                                </div>
-                                <input id="id" name="id" type="number" class="form-control">
+                        <div class="form-group form-row">
+                            <label class="col-sm-2 col-form-label col-form-label-sm">ID</label>
+                            <div class="col-sm-5">
+                                <input id="id" name="itemNumber" type="number" class="form-control">
                             </div>
+                            <label id="current-itemNumber" class="col-sm-5 col-form-label col-form-label-sm">Test</label>
                         </div>
-                        <div class="form-row">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Name</span>
-                                </div>
+                        <div class="form-group form-row">
+                            <label class="col-sm-2 col-form-label col-form-label-sm">Name</label>
+                            <div class="col-sm-5">
                                 <input id="name" name="name" type="text" class="form-control">
                             </div>
+                            <label id="current-name" class="col-sm-5 col-form-label col-form-label-sm">Test</label>
                         </div>
-                        <div class="form-row">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Type</span>
-                                </div>
+                        <div class="form-group form-row">
+                            <label class="col-sm-2 col-form-label col-form-label-sm">Type</label>
+                            <div class="col-sm-5">
                                 <input id="type" name="type" type="text" class="form-control">
                             </div>
+                            <label id="current-type" class="col-sm-5 col-form-label col-form-label-sm">Test</label>
                         </div>
-                        <div class="form-row">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Rarity</span>
-                                </div>
+                        <div class="form-group form-row">
+                            <label class="col-sm-2 col-form-label col-form-label-sm">Rarity</label>
+                            <div class="col-sm-5">
                                 <select id="rarity" name="rarity" class="custom-select">
                                     <option selected>Choose...</option>
                                     <option value="Base">Base</option>
@@ -138,36 +135,43 @@
                                     <option value="Relic">Relic</option>
                                 </select>
                             </div>
+                            <label id="current-rarity" class="col-sm-5 col-form-label col-form-label-sm">Test</label>
                         </div>
-                        <div class="form-row">
-                            <textarea id="desc" name="desc" class="form-control form-control-sm"
-                                placeholder="Description" rows="3" cols="50"></textarea>
+                        <div class="form-group form-row">
+                            <label class="col-sm-2 col-form-label col-form-label-sm">Description</label>
+                            <div class="col-sm-5">
+                                <textarea id="desc" name="description" class="form-control form-control-sm"
+                                    placeholder="Description" rows="3" cols="50"></textarea>
+                            </div>
+                            <div class="col-sm-5">
+                                <textarea id="current-description" class="form-control form-control-sm" placeholder="Test"
+                                    rows="3" cols="50"></textarea>
+                            </div>
                         </div>
-                        <div class="form-row">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Power Score</span>
-                                </div>
+                        <div class="form-group form-row">
+                            <label class="col-sm-2 col-form-label col-form-label-sm">Power Score</label>
+                            <div class="col-sm-5">
                                 <input id="ps" name="ps" type="number" class="form-control">
                             </div>
+                            <label id="current-ps" class="col-sm-5 col-form-label col-form-label-sm">Test</label>
                         </div>
-                        <div id="form_stats" class="form-row">
+                        <div id="form_stats">
 
                         </div>
-                        <div id="form_perks" class="form-row">
+                        <div id="form_perks">
 
                         </div>
-                        <div class="form-row">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Crossout Version</span>
-                                </div>
-                                <input id="xoVer" name="xoVer" type="text" class="form-control" placeholder="0.12.45.163628">
+                        <div class="form-group form-row">
+                            <label class="col-sm-2 col-form-label col-form-label-sm">Crossout Version</label>
+                            <div class="col-sm-5">
+                                <input id="xoVer" name="xoVersion" type="text" class="form-control"
+                                    placeholder="0.12.45.163628">
                             </div>
+                            <label id="current-xoVersion" class="col-sm-5 col-form-label col-form-label-sm">Test</label>
                         </div>
                         <div id="form_buttons" class="form-row">
                             <div class="input-group mb-3">
-                                <input id="uid" name="uid" type="text" class="form-control" placeholder="Author">
+                                <input id="uid" name="author" type="text" class="form-control" placeholder="Author">
                                 <button type="submit" class="btn btn-primary" disabled="true">Submit</button>
                             </div>
                         </div>
