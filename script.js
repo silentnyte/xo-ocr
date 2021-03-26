@@ -306,7 +306,7 @@ function processTitleOCR(data) {
 }
 
 function getXODB(name) {
-  var xoDB_query = encodeURIComponent(name);
+  // var xoDB_query = encodeURIComponent(name);
   // var xoDB_url = "https://crossoutdb.com/api/v2/items?query=" + xoDB_query;
   var xoDB_url = "https://beta.crossoutdb.com/api/v2/ocrstatitems";
   xoDB_data = null;
@@ -322,25 +322,25 @@ function getXODB(name) {
         }
       }
       if (xoDB_data != null) {
-        var rarity = xoDB_data.rarity;
         var faction = 'Shop';
         if (xoDB_data.faction != null) {
           faction = xoDB_data.faction;
         }
-        var category = xoDB_data.category;
-        // var type = xoDB_data.type;
-        var id = xoDB_data.itemNumber;
-        document.getElementById("category").value = category;
+        // console.log(xoDB_data);
+        document.getElementById("category").value = xoDB_data.category;
         document.getElementById("faction").value = faction;
-        document.getElementById("id").value = id;
-        document.getElementById("rarity").value = rarity;
-        document.getElementById("current-category").textContent = category;
+        document.getElementById("level").value = xoDB_data.level;
+        document.getElementById("levelType").value = xoDB_data.levelType;
+        document.getElementById("id").value = xoDB_data.itemNumber;
+        document.getElementById("rarity").value = xoDB_data.rarity;
+        document.getElementById("current-category").textContent = xoDB_data.category;
         document.getElementById("current-faction").textContent = faction;
         document.getElementById("current-level").textContent = xoDB_data.level;
+        document.getElementById("current-levelType").textContent = xoDB_data.levelType;
         document.getElementById("current-itemNumber").textContent = xoDB_data.itemNumber;
         document.getElementById("current-name").textContent = xoDB_data.name;
         document.getElementById("current-type").textContent = xoDB_data.type;
-        document.getElementById("current-rarity").textContent = rarity;
+        document.getElementById("current-rarity").textContent = xoDB_data.rarity;
         document.getElementById("current-description").textContent = xoDB_data.description;
         document.getElementById("current-ps").textContent = xoDB_data.ps;
         document.getElementById("current-xoVersion").textContent = xoDB_data.xoVersion;
@@ -791,7 +791,8 @@ function addField_old(parent, name, type, label, isDec) {
 
 function addAlert(txt) {
   var container = document.getElementById("alerts");
-  var pre = container.appendChild(document.createElement("pre"));
+  var pre = container.appendChild(document.createElement("p"));
+  pre.className = "text-warning";
   pre.innerText = txt;
 }
 
@@ -1027,14 +1028,14 @@ function progressUpdate(packet) {
       var progress = document.createElement("progress");
       progress.value = packet.progress;
       progress.max = 1;
-      line.appendChild(progress);
+      // line.appendChild(progress);
     }
 
     if (packet.status == "done") {
       var pre = document.createElement("pre");
       pre.appendChild(document.createTextNode(packet.data.text));
       line.innerHTML = "";
-      line.appendChild(pre);
+      // line.appendChild(pre);
     }
 
     log.insertBefore(line, log.firstChild);
@@ -1091,6 +1092,18 @@ function initForm() {
   document.getElementById("ocr_results").innerHTML = "";
   document.getElementById("test_results").innerHTML = "";
   document.getElementById("alerts").innerHTML = "";
+
+  document.getElementById("current-category").textContent = "";
+  document.getElementById("current-faction").textContent = "";
+  document.getElementById("current-level").textContent = "";
+  document.getElementById("current-levelType").textContent = "";
+  document.getElementById("current-itemNumber").textContent = "";
+  document.getElementById("current-name").textContent = "";
+  document.getElementById("current-type").textContent = "";
+  document.getElementById("current-rarity").textContent = "";
+  document.getElementById("current-description").textContent = "";
+  document.getElementById("current-ps").textContent = "";
+  document.getElementById("current-xoVersion").textContent = "";
 
   document.getElementById("xoVer").value = xoVer;
   document.getElementById("uid").value = uid;
