@@ -306,27 +306,56 @@ function processTitleOCR(data) {
 }
 
 function getXODB(name) {
-  // var xoDB_query = encodeURIComponent(name);
-  // var xoDB_url = "https://crossoutdb.com/api/v2/items?query=" + xoDB_query;
-  var xoDB_url = "https://beta.crossoutdb.com/api/v2/ocrstatitems";
+  var xoDBOCR_url = "https://beta.crossoutdb.com/api/v2/ocrstatitems";
   xoDB_data = null;
-  getJSON(xoDB_url, function (err, json_data) {
-    if (err != null) {
-      console.error(err);
+  getJSON(xoDBOCR_url, function (errOCR, jsonOCR_data) {
+    if (errOCR != null) {
+      console.error(errOCR);
     } else {
       // console.log(json_data);
-      for (let j = 0; j < json_data.length; j++) {
-        if (json_data[j].name == name) {
-          xoDB_data = json_data[j];
+      for (let j = 0; j < jsonOCR_data.length; j++) {
+        if (jsonOCR_data[j].name == name) {
+          xoDB_data = jsonOCR_data[j];
           break;
         }
       }
-      if (xoDB_data != null) {
+      // console.log(xoDB_data);
+      if (xoDB_data == null) {
+        var xoDB_query = encodeURIComponent(name);
+        var xoDB_url = "https://crossoutdb.com/api/v2/items?query=" + xoDB_query;
+        getJSON(xoDB_url, function (err, json_data) {
+          if (err != null) {
+            console.error(err);
+          } else {
+            // console.log(json_data);
+            for (let j = 0; j < json_data.length; j++) {
+              if (json_data[j].name == name) {
+                xoDB_data = json_data[j];
+                break;
+              }
+            }
+            // console.log(xoDB_data);
+            if (xoDB_data != null) {
+              var faction = 'Shop';
+              if (xoDB_data.faction != null) {
+                faction = xoDB_data.faction;
+              }
+              document.getElementById("category").value = xoDB_data.categoryName;
+              document.getElementById("faction").value = faction;
+              document.getElementById("id").value = xoDB_data.id;
+              document.getElementById("rarity").value = xoDB_data.rarityName;
+              addAlert('"' + name + '" was not found in OCR database but was found in Market database.');
+            } else {
+                // TODO: Add error proccessing
+                addAlert('"' + name + '" was not found in any database.');
+            }
+          }
+        });
+      } else {
         var faction = 'Shop';
         if (xoDB_data.faction != null) {
           faction = xoDB_data.faction;
         }
-        // console.log(xoDB_data);
         document.getElementById("category").value = xoDB_data.category;
         document.getElementById("faction").value = faction;
         document.getElementById("level").value = xoDB_data.level;
@@ -344,9 +373,6 @@ function getXODB(name) {
         document.getElementById("current-description").textContent = xoDB_data.description;
         document.getElementById("current-ps").textContent = xoDB_data.ps;
         document.getElementById("current-xoVersion").textContent = xoDB_data.xoVersion;
-      } else {
-          // TODO: Add error proccessing
-          addAlert('"' + name + '" was not found in database.');
       }
     }
   });
@@ -792,7 +818,7 @@ function addField_old(parent, name, type, label, isDec) {
 function addAlert(txt) {
   var container = document.getElementById("alerts");
   var pre = container.appendChild(document.createElement("p"));
-  pre.className = "text-warning";
+  pre.className = "text-danger";
   pre.innerText = txt;
 }
 

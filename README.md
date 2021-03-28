@@ -6,20 +6,21 @@ I started this project because I wanted to do some item data analysis and could 
 
 ## Instructions:
 
-- **"PASTE ITEM CLIP HERE"**
-This is where you paste your item screenshot. The screenshot should be cropped to the item window border. For best results the image should be taken a 1080p or around 500px wide.
+- Take a screen clipping of the item *(for Windows use Windows Key + Shift + S)*. The clip should be cropped to the item window border. For best results the image should be taken at 1080p or around 500px wide.
+
+-  Paste the clip at "**PASTE ITEM CLIP HERE**"
 
 - The image OCR will automatically begin and the form will fill out.
 
 - When the item name has been parsed it will be looked up in **CrossoutDB** to determine "Category", "Faction", "Level", "Level Type" and "ID". *(If the item is not found in the database these input fields will need to be manually entered)*
 
-- After the form is filled out any of the fields can be edited by hand to correct any OCR errors.
+- Correct any OCR errors.
 
 - Enter the "Crossout Version" the images was taken from.
   
 - Enter "Author" so we know who to thank for scanning the item!
 
-- When you are happy with the result click the "Submit" button and the data will be stored away in a database.
+- When you are happy with the results click the "Submit" button and the data will be posted to the database.
 
 ## Future Improvement:
 - Upgrade Tesseract.js version
@@ -27,5 +28,6 @@ This is where you paste your item screenshot. The screenshot should be cropped t
 - Progress indication
 - Error logging
 - Batch processing
+- Integration with [ShareX](https://getsharex.com/)
 
 *All other files and directories are licensed under the [MIT](http://www.opensource.org/licenses/mit-license.php) unless explicitly stated.*
