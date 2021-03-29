@@ -457,7 +457,10 @@ function processDescOCR(data, cimg) {
       }
     }
   }
-  document.getElementById("desc").textContent = desc;
+  document.getElementById("description").textContent = desc;
+
+  $("input").on("focusout", validate);
+  $("textarea").on("focusout", validate);
 
   appendOCR_results(data.text);
   drawOCR(cnv_inv, "cnv_ocr", cimg);
@@ -669,6 +672,8 @@ async function processStatsVal(line, cimg, name, label, type) {
     );
     ctx.drawImage(cnv_filter, x, y, w, h, dx, dy, dw, dh);
   }
+  $("input").on("focusout", validate);
+  $("textarea").on("focusout", validate);
 }
 
 async function processFeatures(startLine, endLine, cimg, name, label, type) {
@@ -711,6 +716,9 @@ async function processFeatures(startLine, endLine, cimg, name, label, type) {
     }
   }
 
+  $("input").on("focusout", validate);
+  $("textarea").on("focusout", validate);
+
   var cnv = document.getElementById("cnv_ocr");
   var ctx = cnv.getContext("2d");
   ctx.drawImage(cnv_inv, x, y, w, h, dx, dy, dw, dh);
@@ -721,6 +729,9 @@ async function processPerks(line, cimg, name, label, type) {
   await recognizeFile(
     ctx_inv.getImageData(cimg.sx, cimg.sy, cimg.sw, cimg.sh)
   ).then((data) => (processPerksOCR(name, data)));
+
+  $("input").on("focusout", validate);
+  $("textarea").on("focusout", validate);
 
   drawOCR(cnv_inv, "cnv_ocr", cimg);
 }
@@ -775,12 +786,12 @@ function addField(parent, name, type, label, isDec) {
     currentdiv.className = "col-sm-5";
     var currenttxt = currentdiv.appendChild(document.createElement("textarea"));
     currenttxt.id = 'current-' + name;
-    if(xoDB_data != null) {
-      currenttxt.textContent = xoDB_data[name];
-    }
     currenttxt.cols = "50";
     currenttxt.rows = "4";
     currenttxt.className = "form-control form-control-sm";
+    if(xoDB_data != null) {
+      currenttxt.textContent = xoDB_data[name];
+    }
   }
 }
 
@@ -1073,15 +1084,15 @@ function appendOCR_results(text) {
 }
 
 function initForm() {
-  var xoVer = document.getElementById("xoVer").value;
-  var uid = document.getElementById("uid").value;
+  var xoVer = document.getElementById("xoVersion").value;
+  var uid = document.getElementById("author").value;
 
   ctx0.clearRect(0, 0, cw, ch);
   ctx_ocr.clearRect(0, 0, cw, ch);
 
   document.getElementById("form").reset();
 
-  document.getElementById("desc").textContent = "";
+  document.getElementById("description").textContent = "";
   document.getElementById("form_stats").innerHTML = "";
   document.getElementById("form_perks").innerHTML = "";
   document.getElementById("log").innerHTML = "";
@@ -1101,8 +1112,8 @@ function initForm() {
   document.getElementById("current-ps").textContent = "";
   document.getElementById("current-xoVersion").textContent = "";
 
-  document.getElementById("xoVer").value = xoVer;
-  document.getElementById("uid").value = uid;
+  document.getElementById("xoVersion").value = xoVer;
+  document.getElementById("author").value = uid;
 }
 
 function myError(err, message) {
@@ -1194,7 +1205,9 @@ function validate() {
       if ($(this).val() == $("#current-" + $(this).attr("id")).text()) {
         $(this)[0].classList.remove("no_match");
       } else {
-        $(this)[0].classList.add("no_match");
+        if($(this).attr("name") != "author") {
+          $(this)[0].classList.add("no_match");
+        }
       }
     } else {
       $(this)[0].classList.add("invalid");
@@ -1227,6 +1240,11 @@ function validate() {
     // if it has a value, increment the counter
     if ($(this).val()) {
       $(this)[0].classList.remove("invalid");
+      if ($(this).val() == $("#current-" + $(this).attr("id")).text()) {
+        $(this)[0].classList.remove("no_match");
+      } else {
+        $(this)[0].classList.add("no_match");
+      }
     } else {
       $(this)[0].classList.add("invalid");
       formInvalid = true;
