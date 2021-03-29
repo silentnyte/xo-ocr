@@ -221,8 +221,13 @@ function update_cimgs() {
 }
 
 var spellchk = [
-  [/\"/g, "'"],
-  [/\—/g, "-"],
+  [/\"/g, "'"],             //double quotes
+  [/[\u2018\u2019]/g, "'"], //curly single quotes
+  [/[\u201C\u201D]/g, "'"], //curly double quotes
+  [/\`/g, "'"],             //back quote
+  [/\’/g, "'"],             //apostrophe
+  [/\\/g, "/"],             //backslash
+  [/\—/g, "-"],             //long slash
   ["puwer", "power"],
   ["catlin", "cabin"],
   ["amrno", "ammo"],
@@ -231,7 +236,7 @@ var spellchk = [
   ["nut", "not"],
   ["Dues", "Does"],
   ["sturage", "storage"],
-  ["Nun’", "Non-"],
+  ["Nun'", "Non-"],
   ["Frame black", "Frame block"],
 ];
 
@@ -383,38 +388,6 @@ function getXODB(name) {
   });
 }
 
-function getSheetData() {
-  var query = encodeURIComponent("SELECT * WHERE A='" + iname + "'");
-  var url =
-    "https://docs.google.com/spreadsheets/d/" +
-    SSID +
-    "/gviz/tq?gid=" +
-    master_sheet +
-    "&tq=" +
-    query;
-
-  jsonp(url, function (json_data) {
-    // console.log(url);
-    // console.log(json_data);
-    if (typeof json_data.table.rows[0] === "undefined") {
-      // TODO: Add error proccessing
-      console.log('"' + iname + '" was not found in database.');
-    } else {
-      // var rarity = json_data.table.rows[0].c[1].v;
-      var faction = "Shop";
-      if (json_data.table.rows[0].c[2] != null) {
-        faction = json_data.table.rows[0].c[2].v;
-      }
-      var category = json_data.table.rows[0].c[3].v;
-      // var type = json_data.table.rows[0].c[4].v;
-      var id = json_data.table.rows[0].c[5].v;
-      document.getElementById("category").value = category;
-      document.getElementById("faction").value = faction;
-      document.getElementById("itemNumber").value = id;
-    }
-  });
-}
-
 function locatePS(data, cimg) {
   for (let l in data.lines) {
     var txt = data.lines[l].text.trim();
@@ -474,7 +447,6 @@ function processDescOCR(data, cimg) {
         !txt.match(/Not tradable/i) &&
         !txt.match(/Does not take up storage space/i) &&
         !txt.match(/Non-salvageable/i) &&
-        !txt.match(/Non—salvageable/i) &&
         !txt.match(/Not for fusion/i) &&
         !txt.match(/mounted on a vehicle/i)
       ) {
@@ -859,7 +831,7 @@ function processBar(img) {
     }
   }
   var val = colors["#ffffff"] / (colors["#ffffff"] + colors["#4c4c4c"]);
-  val = ~~(val * 100);
+  val = Math.round(val * 100);
   val = val / 10;
   return val;
 }
