@@ -32,3 +32,10 @@ select.invalid,
 textarea.invalid {
   border-color: red;
 }
+
+input[type="text"].no_match,
+input[type="number"].no_match,
+select.no_match,
+textarea.no_match {
+  border-color: rgb(127, 0, 255);
+}

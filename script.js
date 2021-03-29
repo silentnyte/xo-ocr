@@ -3,6 +3,7 @@ var img_org = new Image(); // original image
 // https://groups.google.com/g/tesseract-ocr/c/Wdh_JJwnw94/m/24JHDYQbBQAJ
 var ideal_iw = 1280;
 var max_cw = 512;
+var scale = 0;
 var proportion = 1; // ratio of canvas size / original image
 var title_color;
 var xoDB_data = null;
@@ -23,6 +24,8 @@ var ctx_ocr = cnv_ocr.getContext("2d");
 
 var cnv_org = document.createElement("canvas");
 var ctx_org = cnv_org.getContext("2d");
+var cnv_scaled = document.createElement("canvas");
+var ctx_scaled = cnv_scaled.getContext("2d");
 var cnv_inv = document.createElement("canvas");
 var ctx_inv = cnv_inv.getContext("2d");
 var cnv_filter = document.createElement("canvas");
@@ -206,7 +209,7 @@ function update_cimgs() {
       sh: 0,
       sx2: ~~(iw * 0.47),
       sw2: ~~(iw * 0.49),
-      sh2: 8,
+      sh2: 16,
     },
     perks: {
       sx: ~~(iw * 0.1),
@@ -218,6 +221,8 @@ function update_cimgs() {
 }
 
 var spellchk = [
+  [/\"/g, "'"],
+  [/\—/g, "-"],
   ["puwer", "power"],
   ["catlin", "cabin"],
   ["amrno", "ammo"],
@@ -342,7 +347,7 @@ function getXODB(name) {
               }
               document.getElementById("category").value = xoDB_data.categoryName;
               document.getElementById("faction").value = faction;
-              document.getElementById("id").value = xoDB_data.id;
+              document.getElementById("itemNumber").value = xoDB_data.id;
               document.getElementById("rarity").value = xoDB_data.rarityName;
               addAlert('"' + name + '" was not found in OCR database but was found in Market database.');
             } else {
@@ -360,7 +365,7 @@ function getXODB(name) {
         document.getElementById("faction").value = faction;
         document.getElementById("level").value = xoDB_data.level;
         document.getElementById("levelType").value = xoDB_data.levelType;
-        document.getElementById("id").value = xoDB_data.itemNumber;
+        document.getElementById("itemNumber").value = xoDB_data.itemNumber;
         document.getElementById("rarity").value = xoDB_data.rarity;
         document.getElementById("current-category").textContent = xoDB_data.category;
         document.getElementById("current-faction").textContent = faction;
@@ -405,7 +410,7 @@ function getSheetData() {
       var id = json_data.table.rows[0].c[5].v;
       document.getElementById("category").value = category;
       document.getElementById("faction").value = faction;
-      document.getElementById("id").value = id;
+      document.getElementById("itemNumber").value = id;
     }
   });
 }
@@ -679,9 +684,10 @@ async function processStatsVal(line, cimg, name, label, type) {
 
   if (type == "bar") {
     addField("form_stats", name, "number", label, true);
-    var val = processBar(ctx_inv.getImageData(x, syc, w, 1));
+    // var val = processBar(ctx_inv.getImageData(x, syc, w, 1));
+    var val = processBar(ctx_org.getImageData(~~(x / scale), ~~(syc / scale), ~~(w / scale), 1));
     document.getElementById(name).value = val;
-    ctx.drawImage(cnv_inv, x, y, w, h, dx, dy, dw, dh);
+    ctx.drawImage(cnv_org, ~~(x / scale), ~~(y / scale), ~~(w / scale), ~~(h / scale), dx, dy, dw, dh);
   } else {
     addField("form_stats", name, "number", label, false);
     await recognizeFile(ctx_filter.getImageData(x, y, w, h)).then(
@@ -789,32 +795,6 @@ function addField(parent, name, type, label, isDec) {
   }
 }
 
-function addField_old(parent, name, type, label, isDec) {
-  var container = document.getElementById(parent);
-  if (type == "text" || type == "number") {
-    var ig = container.appendChild(document.createElement("div"));
-    ig.className = "input-group mb-3";
-    var igp = ig.appendChild(document.createElement("div"));
-    igp.className = "input-group-prepend";
-    var span = igp.appendChild(document.createElement("span"));
-    span.className = "input-group-text";
-    span.textContent = label;
-    var input = ig.appendChild(document.createElement("input"));
-    input.id = name;
-    input.name = name;
-    input.type = type;
-    if(isDec) { input.step = "0.1"; }
-    input.className = "form-control";
-  } else {
-    var input = container.appendChild(document.createElement("textarea"));
-    input.id = name;
-    input.name = name;
-    input.cols = "50";
-    input.rows = "4";
-    input.className = "form-control form-control-sm";
-  }
-}
-
 function addAlert(txt) {
   var container = document.getElementById("alerts");
   var pre = container.appendChild(document.createElement("p"));
@@ -868,8 +848,8 @@ function getRarity(rgb) {
 
 function processBar(img) {
   var colors = {
-    "#000000": 0,
-    "#b3b3b3": 0,
+    "#ffffff": 0,
+    "#4c4c4c": 0,
   };
   for (var x = 0; x < img.width; x++) {
     for (var y = 0; y < img.height; y++) {
@@ -878,7 +858,7 @@ function processBar(img) {
       colors[hex] = (colors[hex] || 0) + 1;
     }
   }
-  var val = colors["#000000"] / (colors["#000000"] + colors["#b3b3b3"]);
+  var val = colors["#ffffff"] / (colors["#ffffff"] + colors["#4c4c4c"]);
   val = ~~(val * 100);
   val = val / 10;
   return val;
@@ -889,15 +869,16 @@ function rgbToHex(r, g, b) {
 }
 
 img_org.onload = function () {
-  var scale = ideal_iw / img_org.width;
+  scale = ideal_iw / img_org.width;
 
-  // cnv_org.width = iw;
-  // cnv_org.height = ih;
-  // ctx_org.drawImage(img_org, 0, 0, iw, ih);
-  cv.imshow(cnv_org, scaleImage(img_org, scale));
+  cnv_org.width = img_org.width;
+  cnv_org.height = img_org.height;
+  ctx_org.drawImage(img_org, 0, 0);
+
+  cv.imshow(cnv_scaled, scaleImage(img_org, scale));
   if (max_cw > 0) {
-    iw = cnv_org.width;
-    ih = cnv_org.height;
+    iw = cnv_scaled.width;
+    ih = cnv_scaled.height;
     proportion = max_cw / iw;
     cw = max_cw;
     ch = ~~(ih * proportion);
@@ -915,19 +896,19 @@ img_org.onload = function () {
 
   cnv0.width = cw;
   cnv0.height = ch;
-  cnv0.style.backgroundImage = "url(" + cnv_org.toDataURL() + ")";
+  cnv0.style.backgroundImage = "url(" + cnv_scaled.toDataURL() + ")";
 
   cnv_ocr.width = cw;
   cnv_ocr.height = ch;
 
-  title_color = getColor(ctx_org.getImageData(10, 10, 10, 10));
+  title_color = getColor(ctx_scaled.getImageData(10, 10, 10, 10));
   var title_gs = ~~((title_color.r + title_color.g + title_color.b) / 3);
   document.getElementById("rarity").value = getRarity(title_color);
 
   cnv_inv.width = iw;
   cnv_inv.height = ih;
   ctx_inv.filter = "invert(1)";
-  ctx_inv.drawImage(cnv_org, 0, 0, iw, ih);
+  ctx_inv.drawImage(cnv_scaled, 0, 0, iw, ih);
 
   cnv_filter.width = iw;
   cnv_filter.height = ih;
@@ -937,7 +918,7 @@ img_org.onload = function () {
   cnv_title.height = cimgs.title.sh;
   ctx_title.filter = "invert(1)";
   ctx_title.drawImage(
-    cnv_org,
+    cnv_scaled,
     cimgs.title.sx,
     cimgs.title.sy,
     cimgs.title.sw,
@@ -1203,7 +1184,6 @@ $(document).ready(function () {
   $("input").on("focusout", validate);
   $("select").on("focusout", validate);
   $("textarea").on("focusout", validate);
-  $("textarea").on("focusout", validate);
 });
 
 item_name.addEventListener("focusout", (event) => {
@@ -1218,9 +1198,15 @@ function validate() {
 
   formInputs.each(function (e) {
     // if it has a value, increment the counter
-    // console.log($(this)[0]);
+    // console.log($("#current-" + $(this).attr("id")).val());
+    // console.log($(this).val() + ' == ' + $("#current-" + $(this).attr("id")).text());
     if ($(this).val()) {
       $(this)[0].classList.remove("invalid");
+      if ($(this).val() == $("#current-" + $(this).attr("id")).text()) {
+        $(this)[0].classList.remove("no_match");
+      } else {
+        $(this)[0].classList.add("no_match");
+      }
     } else {
       $(this)[0].classList.add("invalid");
       formInvalid = true;
@@ -1234,6 +1220,11 @@ function validate() {
     // if it has a value, increment the counter
     if ($(this).val() != "Choose..." && $(this).val() != "") {
       $(this)[0].classList.remove("invalid");
+      if ($(this).val() == $("#current-" + $(this).attr("id")).text()) {
+        $(this)[0].classList.remove("no_match");
+      } else {
+        $(this)[0].classList.add("no_match");
+      }
     } else {
       $(this)[0].classList.add("invalid");
       formInvalid = true;
