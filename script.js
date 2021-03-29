@@ -720,9 +720,26 @@ async function processPerks(line, cimg, name, label, type) {
   addField("form_perks", name, "textarea", label, false);
   await recognizeFile(
     ctx_inv.getImageData(cimg.sx, cimg.sy, cimg.sw, cimg.sh)
-  ).then((data) => (document.getElementById(name).value = data.text.trim()));
+  ).then((data) => (processPerksOCR(name, data)));
 
   drawOCR(cnv_inv, "cnv_ocr", cimg);
+}
+
+function processPerksOCR(name, data) {
+  var perks = "";
+  for (let l in data.lines) {
+    var txt = data.lines[l].text.trim();
+    if (txt.length > 0) {
+      for (let j = 0; j < spellchk.length; j++) {
+        txt = txt.replace(spellchk[j][0], spellchk[j][1]);
+      }
+      if (perks != "") {
+        perks = perks + "\n";
+      }
+      perks = perks + txt;
+    }
+  }
+  document.getElementById(name).value = perks;
 }
 
 function addField(parent, name, type, label, isDec) {
