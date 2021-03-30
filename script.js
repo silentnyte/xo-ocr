@@ -288,7 +288,7 @@ async function ocrImage() {
     ).then((data) => processStatsOCR(data, cimgs.stats));
   } else {
     //TODO: Add error proccessing if PS not found
-    alert('"POWER SCORE" not found in image!');
+    alert('"POWER SCORE" not found in image!\n\nIf "POWER SCORE" should have been found, try a new screen clip.\n\nAfter a couple tries if it does not work post the image on imgur.com and a link on the discord #bad-image');
   }
 }
 
@@ -340,7 +340,7 @@ function getXODB(name) {
           } else {
             // console.log(json_data);
             for (let j = 0; j < json_data.length; j++) {
-              if (json_data[j].name == name) {
+              if (json_data[j].availableName == name) {
                 xoDB_data = json_data[j];
                 break;
               }
