@@ -103,7 +103,16 @@
                         <div class="form-group form-row">
                             <label class="col-sm-2 col-form-label col-form-label-sm">Level Type</label>
                             <div class="col-sm-5">
-                                <input id="levelType" name="levelType" type="text" class="form-control">
+                                <input id="levelType" name="levelType" list="levelTypeList" type="text" class="form-control">
+                                <datalist id="levelTypeList">
+                                    <option selected>Choose...</option>
+                                    <option value="Base">Base</option>
+                                    <option value="Prestige">Prestige</option>
+                                    <option value="BP01-Founders">BP01-Founders</option>
+                                    <option value="BP02-Doomsday Cars">BP02-Doomsday Cars</option>
+                                    <option value="BP03-Amusement Park">BP03-Amusement Park</option>
+                                    <option value="BP04-Syndicate">BP04-Syndicate</option>
+                                </datalist>
                             </div>
                             <label id="current-levelType" class="col-sm-5 col-form-label col-form-label-sm"></label>
                         </div>
