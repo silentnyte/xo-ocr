@@ -228,6 +228,7 @@ var spellchk = [
   [/\’/g, "'"],             //apostrophe
   [/\\/g, "/"],             //backslash
   [/\—/g, "-"],             //long slash
+  [/\|/g, ""],              //vertical line
   ["puwer", "power"],
   ["catlin", "cabin"],
   ["amrno", "ammo"],
@@ -316,7 +317,7 @@ function processTitleOCR(data) {
 }
 
 function getXODB(name) {
-  var xoDBOCR_url = "https://beta.crossoutdb.com/api/v2/ocrstatitems";
+  var xoDBOCR_url = "https://crossoutdb.com/api/v2/ocrstatitems";
   xoDB_data = null;
   getJSON(xoDBOCR_url, function (errOCR, jsonOCR_data) {
     if (errOCR != null) {
