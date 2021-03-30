@@ -1065,14 +1065,21 @@ const submitURL =
   "https://script.google.com/macros/s/AKfycbxDJYFwbtzEF9Xarhi4P6G34FQS4dRdCGiWSshXYjYjF6MylxssyqL2dFRvi2JUziG0/exec";
 form.addEventListener("submit", (e) => {
   e.preventDefault();
+  $("button[type=submit]").prop("disabled", true);
   fetch(submitURL, {
     method: "POST",
     body: new FormData(form),
   })
-    .then((response) => console.log("Success!", response))
-    .then((html) => {
-      // you can put any JS code here
-      // alert("Success!");
+    .then((response) => {
+      console.log("Submitted: ", response);
+      if(response.status == 200) {
+        var h = document.createElement("h3");
+        h.className = "text-success text-center"
+        h.textContent = "Form successfully submitted!";
+        document.getElementById("submit_status").appendChild(h);
+      } else {
+        alert('Form submit failed', response);
+      }
     });
 });
 
@@ -1096,6 +1103,7 @@ function initForm() {
   document.getElementById("description").textContent = "";
   document.getElementById("form_stats").innerHTML = "";
   document.getElementById("form_perks").innerHTML = "";
+  document.getElementById("submit_status").innerHTML = "";
   document.getElementById("log").innerHTML = "";
   document.getElementById("ocr_results").innerHTML = "";
   document.getElementById("test_results").innerHTML = "";
