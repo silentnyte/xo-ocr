@@ -1106,6 +1106,7 @@ function initForm() {
   document.getElementById("form").reset();
 
   document.getElementById("description").textContent = "";
+  document.getElementById("suggestions").textContent = "";
   document.getElementById("form_stats").innerHTML = "";
   document.getElementById("form_perks").innerHTML = "";
   document.getElementById("submit_status").innerHTML = "";
@@ -1201,7 +1202,9 @@ $(document).ready(function () {
 });
 
 item_name.addEventListener("focusout", (event) => {
-  getXODB(item_name.value);
+  if(item_name.value != "") {
+    getXODB(item_name.value);
+  }
 });
 
 function validate() {
