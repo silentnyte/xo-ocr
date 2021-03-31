@@ -267,15 +267,19 @@ async function ocrImage() {
   await recognizeFile(cnv_filter).then((data) => locatePS(data, cimgs.ps));
   if (cimgs.ps.sy > 0) {
     cimgs.desc.sh = cimgs.ps.sy - cimgs.desc.sy;
-    await recognizeFile(
-      ctx_inv.getImageData(
-        cimgs.desc.sx,
-        cimgs.desc.sy,
-        cimgs.desc.sw,
-        cimgs.desc.sh
-      )
-    ).then((data) => processDescOCR(data, cimgs.desc));
+  } else {
+    cimgs.desc.sh = ih - cimgs.desc.sy;
+  }
+  await recognizeFile(
+    ctx_inv.getImageData(
+      cimgs.desc.sx,
+      cimgs.desc.sy,
+      cimgs.desc.sw,
+      cimgs.desc.sh
+    )
+  ).then((data) => processDescOCR(data, cimgs.desc));
 
+  if (cimgs.ps.sy > 0) {
     cimgs.stats.sy = cimgs.ps.sy + cimgs.ps.sh;
     cimgs.stats.sh = ih - cimgs.stats.sy;
     await recognizeFile(
@@ -288,8 +292,9 @@ async function ocrImage() {
     ).then((data) => processStatsOCR(data, cimgs.stats));
   } else {
     //TODO: Add error proccessing if PS not found
-    alert('"POWER SCORE" not found in image!\n\nIf "POWER SCORE" should have been found, try a new screen clip.\n\nAfter a couple tries if it does not work post the image on imgur.com and a link on the discord #bad-image');
+    addAlert('"POWER SCORE" not found in image!\n\nIf "POWER SCORE" should have been found, try a new screen clip.\n\nAfter a couple tries if it does not work post the image on imgur.com\nand a link on the discord #bad-image');
   }
+  validate();
 }
 
 function processTitleOCR(data) {
@@ -355,7 +360,7 @@ function getXODB(name) {
               document.getElementById("faction").value = faction;
               document.getElementById("itemNumber").value = xoDB_data.id;
               document.getElementById("rarity").value = xoDB_data.rarityName;
-              addAlert('"' + name + '" was not found in OCR database but was found in Market database.');
+              addAlert('"' + name + '" was not found in OCR database, found in Market database.');
             } else {
                 // TODO: Add error proccessing
                 addAlert('"' + name + '" was not found in any database.');
@@ -1219,8 +1224,11 @@ function validate() {
         }
       }
     } else {
-      $(this)[0].classList.add("invalid");
-      formInvalid = true;
+      if ($(this).attr("name") != "ps") {
+        // (document.getElementById("category").textContent != "Customization"))
+        $(this)[0].classList.add("invalid");
+        formInvalid = true;
+      }
     }
   });
 
