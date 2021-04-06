@@ -3,7 +3,7 @@ var img_org = new Image(); // original image
 // https://groups.google.com/g/tesseract-ocr/c/Wdh_JJwnw94/m/24JHDYQbBQAJ
 var ideal_iw = 1280;
 var max_cw = 512;
-var scale = 0;
+var ocr_scale = 0;
 var proportion = 1; // ratio of canvas size / original image
 var title_color;
 var xoDB_data = null;
@@ -42,6 +42,13 @@ ctx0.textAlign = "center";
 ctx0.textBaseline = "middle";
 ctx0.fillText("PASTE ITEM CLIP HERE", ~~(cw / 2), ~~(ch / 2));
 
+var featureLabels = {
+  featureBlastPercent: 'Feature Blast',
+  featureBulletPercent: 'Feature Bullet',
+  featureFirePercent: 'Feature Fire',
+  featureMeleePercent: 'Feature Melee',
+  featurePassthroughPercent: 'Feature Passthrough',
+};
 var featureImgs = {
   featureBlastPercent: new Image(),
   featureBulletPercent: new Image(),
@@ -336,6 +343,7 @@ function getXODB(name) {
         }
       }
       // console.log(xoDB_data);
+      var faction = 'Shop';
       if (xoDB_data == null) {
         var xoDB_query = encodeURIComponent(name);
         var xoDB_url = "https://crossoutdb.com/api/v2/items?query=" + xoDB_query;
@@ -352,7 +360,6 @@ function getXODB(name) {
             }
             // console.log(xoDB_data);
             if (xoDB_data != null) {
-              var faction = 'Shop';
               if (xoDB_data.faction != null) {
                 faction = xoDB_data.faction;
               }
@@ -368,7 +375,6 @@ function getXODB(name) {
           }
         });
       } else {
-        var faction = 'Shop';
         if (xoDB_data.faction != null) {
           faction = xoDB_data.faction;
         }
@@ -666,9 +672,9 @@ async function processStatsVal(line, cimg, name, label, type) {
   if (type == "bar") {
     addField("form_stats", name, "number", label, true);
     // var val = processBar(ctx_inv.getImageData(x, syc, w, 1));
-    var val = processBar(ctx_org.getImageData(~~(x / scale), ~~(syc / scale), ~~(w / scale), 1));
+    var val = processBar(ctx_org.getImageData(~~(x / ocr_scale), ~~(syc / ocr_scale), ~~(w / ocr_scale), 1));
     document.getElementById(name).value = val;
-    ctx.drawImage(cnv_org, ~~(x / scale), ~~(y / scale), ~~(w / scale), ~~(h / scale), dx, dy, dw, dh);
+    ctx.drawImage(cnv_org, ~~(x / ocr_scale), ~~(y / ocr_scale), ~~(w / ocr_scale), ~~(h / ocr_scale), dx, dy, dw, dh);
   } else {
     addField("form_stats", name, "number", label, false);
     await recognizeFile(ctx_filter.getImageData(x, y, w, h)).then(
@@ -705,7 +711,7 @@ async function processFeatures(startLine, endLine, cimg, name, label, type) {
       var fy = result.maxLoc.y;
       var fw = 150;
       var fh = 75;
-      addField("form_stats", i, "text", i, false);
+      addField("form_stats", i, "text", featureLabels[i], false);
       await recognizeFile(ctxf.getImageData(fx, fy, fw, fh)).then(
         (data) =>
           (document.getElementById(i).value = data.text.replace(/[^-\d]/g, "")) //.match(/-?\d+/g))
@@ -875,13 +881,13 @@ function rgbToHex(r, g, b) {
 }
 
 img_org.onload = function () {
-  scale = ideal_iw / img_org.width;
+  ocr_scale = ideal_iw / img_org.width;
 
   cnv_org.width = img_org.width;
   cnv_org.height = img_org.height;
   ctx_org.drawImage(img_org, 0, 0);
 
-  cv.imshow(cnv_scaled, scaleImage(img_org, scale));
+  cv.imshow(cnv_scaled, scaleImage(img_org, ocr_scale));
   if (max_cw > 0) {
     iw = cnv_scaled.width;
     ih = cnv_scaled.height;
@@ -918,7 +924,7 @@ img_org.onload = function () {
 
   cnv_filter.width = iw;
   cnv_filter.height = ih;
-  cv.imshow(cnv_filter, filterImg(cnv_inv, 255 - title_gs + 20));
+  cv.imshow(cnv_filter, filterImg(cnv_inv, 255 - title_gs + 50));
 
   cnv_title.width = cimgs.title.sw;
   cnv_title.height = cimgs.title.sh;
@@ -947,6 +953,12 @@ img_org.onload = function () {
     cimgs.title.dh
   );
 
+  if (debug_ocr.checked) {
+    addAlert('title color: ' + title_color.h + ', gs: ' + title_gs);
+    var container = document.getElementById("test_results");
+    container.appendChild(cnv_inv);
+    container.appendChild(cnv_filter);
+  }
   ocrImage();
 };
 
