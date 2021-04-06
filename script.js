@@ -313,6 +313,7 @@ function processTitleOCR(data) {
       for (let j = 0; j < spellchk.length; j++) {
         txt = txt.replace(spellchk[j][0], spellchk[j][1]);
       }
+      txt = txt.trim();
       if (iname == "") {
         iname = txt;
       } else {
@@ -428,6 +429,7 @@ function processDescOCR(data, cimg) {
       for (let j = 0; j < spellchk.length; j++) {
         txt = txt.replace(spellchk[j][0], spellchk[j][1]);
       }
+      txt = txt.trim();
       if (txt.match(/Increases vehicle durability/i)) {
         addField(
           "form_stats",
@@ -490,6 +492,7 @@ async function processStatsOCR(data, cimg) {
         for (let j = 0; j < spellchk.length; j++) {
           txtlc = txtlc.replace(spellchk[j][0], spellchk[j][1]);
         }
+        txt = txt.trim();
         var name = txtlc.split(" ")[0];
         var label = "";
         var type = "";
@@ -756,6 +759,7 @@ function processPerksOCR(name, data) {
       for (let j = 0; j < spellchk.length; j++) {
         txt = txt.replace(spellchk[j][0], spellchk[j][1]);
       }
+      txt = txt.trim();
       if (perks != "") {
         perks = perks + "\n";
       }
