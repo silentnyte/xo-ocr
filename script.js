@@ -913,18 +913,22 @@ img_org.onload = function () {
   cnv_ocr.width = cw;
   cnv_ocr.height = ch;
 
-  title_color = getColor(ctx_scaled.getImageData(10, 10, 10, 10));
-  var title_gs = ~~((title_color.r + title_color.g + title_color.b) / 3);
+  title_color = getColor(ctx_scaled.getImageData(30, 30, 10, 10));
+  // var title_gs = Math.round((title_color.r)/3 + (title_color.g)/3 + (title_color.b)/3);
   document.getElementById("rarity").value = getRarity(title_color);
 
   cnv_inv.width = iw;
   cnv_inv.height = ih;
   ctx_inv.filter = "invert(1)";
   ctx_inv.drawImage(cnv_scaled, 0, 0, iw, ih);
+  var inv_color = getColor(ctx_inv.getImageData(30, 30, 10, 10));
+  var title_gs = Math.round((inv_color.r)/3 + (inv_color.g)/3 + (inv_color.b)/3);
 
   cnv_filter.width = iw;
   cnv_filter.height = ih;
-  cv.imshow(cnv_filter, filterImg(cnv_inv, 255 - title_gs + 50));
+  // ctx_filter.filter = "grayscale(1)";
+  // ctx_filter.drawImage(cnv_inv, 0, 0, iw, ih);
+  cv.imshow(cnv_filter, filterImg(cnv_inv, title_gs + 20));
 
   cnv_title.width = cimgs.title.sw;
   cnv_title.height = cimgs.title.sh;
@@ -940,7 +944,7 @@ img_org.onload = function () {
     cimgs.title.sw,
     cimgs.title.sh
   );
-  cv.imshow(cnv_title, filterImg(cnv_title, 255 - title_gs - 50));
+  cv.imshow(cnv_title, filterImg(cnv_title, title_gs - 30));
   ctx_ocr.drawImage(
     cnv_title,
     0,
@@ -954,7 +958,7 @@ img_org.onload = function () {
   );
 
   if (debug_ocr.checked) {
-    addAlert('title color: ' + title_color.h + ', gs: ' + title_gs);
+    addAlert('title color: ' + title_color.h + ', inv color: ' + inv_color.h + ', gs: ' + title_gs);
     var container = document.getElementById("test_results");
     container.appendChild(cnv_inv);
     container.appendChild(cnv_filter);
