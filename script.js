@@ -216,7 +216,7 @@ function update_cimgs() {
       sw: ~~(iw * 0.45) - (border_offset * 2),
       sh: 0,
       sx2: ~~(iw * 0.47),
-      sw2: ~~(iw * 0.49),
+      sw2: ~~(iw * 0.50),
       sh2: 16,
     },
     perks: {
