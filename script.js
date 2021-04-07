@@ -7,6 +7,7 @@ var ocr_scale = 0;
 var proportion = 1; // ratio of canvas size / original image
 var title_color;
 var xoDB_data = null;
+var border_offset = 20;
 
 // const worker = Tesseract.createWorker({
 //   logger: m => console.log(m)
@@ -176,11 +177,11 @@ function update_cimgs() {
   cimgs = {
     title: {
       sx: ~~(iw - iw * 0.83),
-      sy: 0,
-      sw: ~~(iw * 0.83),
-      sh: ~~(iw * 0.18),
+      sy: border_offset,
+      sw: ~~(iw * 0.83) - border_offset,
+      sh: ~~(iw * 0.18) - border_offset,
       dx: ~~((iw - iw * 0.83) * proportion),
-      dy: 0,
+      dy: ~~(border_offset * proportion),
       dw: ~~(iw * 0.83 * proportion),
       dh: ~~(iw * 0.18 * proportion),
     },
@@ -198,30 +199,30 @@ function update_cimgs() {
       sh2: 8,
     },
     desc: {
-      sx: 0,
+      sx: border_offset,
       sy: ~~(iw * 0.2),
-      sw: iw,
+      sw: iw - (border_offset * 2),
       sh: 0,
     },
     ps: {
-      sx: 0,
+      sx: border_offset,
       sy: 0,
-      sw: iw,
+      sw: iw - (border_offset * 2),
       sh: 0,
     },
     stats: {
-      sx: 0,
+      sx: border_offset,
       sy: 0,
-      sw: ~~(iw * 0.45),
+      sw: ~~(iw * 0.45) - (border_offset * 2),
       sh: 0,
       sx2: ~~(iw * 0.47),
       sw2: ~~(iw * 0.49),
       sh2: 16,
     },
     perks: {
-      sx: ~~(iw * 0.1),
+      sx: ~~(iw * 0.11),
       sy: 0,
-      sw: ~~(iw * 0.9),
+      sw: ~~(iw * 0.89) - border_offset,
       sh: 0,
     },
   };
@@ -299,7 +300,7 @@ async function ocrImage() {
     ).then((data) => processStatsOCR(data, cimgs.stats));
   } else {
     //TODO: Add error proccessing if PS not found
-    addAlert('"POWER SCORE" not found in image!\n\nIf "POWER SCORE" should have been found, try a new screen clip.\n\nAfter a couple tries if it does not work post the image on imgur.com\nand a link on the discord #bad-image');
+    addAlert('"POWER SCORE" not found in image!\n\nIf "POWER SCORE" should have been found, try a new screen clip.\n\nAfter a couple tries if it does not work post the image on discord #bad-images');
   }
   validate();
 }
@@ -645,7 +646,7 @@ async function processStatsOCR(data, cimg) {
     }
     if (cimg.sh - massLine.bbox.y1 > 75) {
       cimgs.perks.sy = massLine.bbox.y1 + cimg.sy + ~~(iw * 0.05);
-      cimgs.perks.sh = ih - cimgs.perks.sy;
+      cimgs.perks.sh = ih - cimgs.perks.sy - border_offset;
       await processPerks(massLine, cimgs.perks, "perks", "Perks", "");
       cimg.sh = cimgs.perks.sy - cimg.sy;
     }
